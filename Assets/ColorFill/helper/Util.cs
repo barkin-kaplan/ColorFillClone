@@ -47,6 +47,11 @@ namespace ColorFill.helper
             return ParseInt(s.ToString());
         }
 
+        public static float ParseFloat(string s)
+        {
+            return float.Parse(s,CultureInfo.InvariantCulture);
+        }
+
         public static void EditorLog(string s)
         {
 #if UNITY_EDITOR

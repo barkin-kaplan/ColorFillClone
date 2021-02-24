@@ -9,6 +9,7 @@ namespace ColorFill.game.elements
         private Swipeable _swipeable;
         private Vector2 _currentMoveDirection = Vector2.zero;
         private Rigidbody _rigidbody;
+        private Vector3 _velocity = Vector3.zero;
 
         void Awake()
         {
@@ -34,7 +35,12 @@ namespace ColorFill.game.elements
             }
 
             _currentMoveDirection = direction;
-            _rigidbody.velocity = _currentMoveDirection * 5f;
+            _velocity = _currentMoveDirection * 5f;
+        }
+
+        void Update()
+        {
+            transform.position += _velocity * Time.deltaTime;
         }
 
     }
