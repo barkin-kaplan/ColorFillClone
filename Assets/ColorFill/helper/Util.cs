@@ -78,5 +78,10 @@ namespace ColorFill.helper
         {
             return new Vector2(vec3.x,vec3.y);
         }
+
+        public static bool CompareIntegerEqual(float x, float y)
+        {
+            return (int) x == (int) y;
+        }
     }
 }

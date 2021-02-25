@@ -26,5 +26,22 @@ namespace ColorFill.helper.geometry
         {
             return Mathf.Approximately(vector2.x, other.x) && Mathf.Approximately(vector2.y, other.y);
         }
+        
+        public static bool Approximately(this Vector3 vector3, Vector3 other)
+        {
+            return Mathf.Approximately(vector3.x, other.x) && Mathf.Approximately(vector3.y, other.y) && Mathf.Approximately(vector3.z,other.z);
+        }
+
+        public static bool CompareIntegerEqual(this Vector3 vector3, Vector3 other)
+        {
+            return Util.CompareIntegerEqual(vector3.x, other.x) &&
+                   Util.CompareIntegerEqual(vector3.y, other.y) &&
+                   Util.CompareIntegerEqual(vector3.z, other.z);
+        }
+
+        public static float DotUnit(this Vector3 vector3, Vector3 other)
+        {
+            return Vector3.Dot(vector3 / vector3.magnitude, other / other.magnitude);
+        }
     }
 }
