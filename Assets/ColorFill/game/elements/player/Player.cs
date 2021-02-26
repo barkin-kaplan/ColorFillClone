@@ -80,7 +80,7 @@ namespace ColorFill.game.elements
         Vector3 GetNextTurnPosition(out Vector3 diffVector)
         {
             var position = transform.position;
-            var nextPosition = position + (Vector3)_currentMoveDirection / 2;
+            var nextPosition = position + 8 * (Vector3)_currentMoveDirection / 10;
             var nextPositionInt = new Vector3((int) nextPosition.x, (int) nextPosition.y, nextPosition.z);
             diffVector = nextPositionInt - position;
             if(position.CompareIntegerEqual(nextPositionInt) && !position.Approximately(nextPositionInt))

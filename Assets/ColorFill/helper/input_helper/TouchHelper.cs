@@ -12,7 +12,7 @@ namespace ColorFill.helper.input_helper
 
         public TouchHelper()
         {
-            SwipeThreshold = Screen.currentResolution.width / 15;
+            SwipeThreshold = Screen.currentResolution.width / (float)25;
             Debug.Log(SwipeThreshold);
         }
         public Touch GetMouseTouch(out bool isClicked)
@@ -75,9 +75,9 @@ namespace ColorFill.helper.input_helper
 #endif
         
             
-            foreach (var touchData in touches)
+            foreach (var t in touches)
             {
-                HandleTouch(touch);
+                HandleTouch(t);
             }
         }
     
