@@ -28,6 +28,13 @@ namespace ColorFill.helper.object_manager
             return gameObj;
         }
 
+        public GameObject GetObject(GameObjectType type, Vector3 worldPosition)
+        {
+            var typeIndex = (int) type;
+            var prefab = prefabs[typeIndex];
+            return Instantiate(prefab, worldPosition, Quaternion.identity);
+        }
+
         public void DestroyObject(GameObject obj)
         {
             Destroy(obj);

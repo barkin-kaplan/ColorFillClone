@@ -34,20 +34,16 @@ namespace ColorFill.helper.matrix
 
         public void SetItem(int x, int y, T item)
         {
-            if (x == y)
-            {
-                
-            }
             item.x = x;
             item.y = y;
             _items[x + y * _width] = item;
         }
         
-        public List<Point> GetSimilarRegion(int x, int y)
+        public HashSet<Point> GetSimilarRegion(int x, int y)
         {
             var currentCell = GetItem(x, y);
             currentCell.isConsidered = true;
-            List<Point> cells = new List<Point>();
+            HashSet<Point> cells = new HashSet<Point>();
             cells.Add(new Point(x,y));
             //add right cell if it suitable
             if (x != _width - 1)

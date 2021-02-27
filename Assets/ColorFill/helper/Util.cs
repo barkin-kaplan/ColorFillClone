@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using UnityEngine;
@@ -89,6 +90,19 @@ namespace ColorFill.helper
         public static float Tangent(float degree)
         {
             return Mathf.Sin(degree) / Mathf.Cos(degree);
+        }
+
+        public static bool HaveInstersection<T>(HashSet<T> set1, HashSet<T> set2) where T : IEquatable<T>
+        {
+            foreach (var item in set1)
+            {
+                if (set2.Contains(item))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

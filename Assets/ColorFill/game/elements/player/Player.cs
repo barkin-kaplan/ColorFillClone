@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ColorFill.game.level;
+using ColorFill.helper.context;
 using ColorFill.helper.geometry;
 using ColorFill.helper.input_helper;
 using UnityEngine;
@@ -43,7 +44,6 @@ namespace ColorFill.game.elements
             _swipeable = GetComponent<Swipeable>();
             SetSwipeEvent();
             _level = Level.Instance;
-            SetLastCell();
         }
 
         void SetSwipeEvent()
@@ -148,12 +148,17 @@ namespace ColorFill.game.elements
 
         private void OnTriggerEnter(Collider other)
         {
-            var gameObject = other.gameObject;
-            if (gameObject.CompareTag("Wall"))
+            var otherObj = other.gameObject;
+            if (otherObj.CompareTag("Wall"))
             {
                 ResetVelocity();
                 transform.localPosition = _lastCell;
                 _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,PlayerStatus.Stopped);
+            }
+            else if (otherObj.CompareTag("Deadly"))
+            {
+                Destroy(gameObject);
+                GameContext.Instance.ShowGameOver();
             }
         }
 
@@ -166,6 +171,11 @@ namespace ColorFill.game.elements
         {
             _currentMoveDirection = Vector3.zero;
             _velocity = Vector3.zero;
+        }
+
+        public void InitializeData()
+        {
+            SetLastCell();
         }
     }
 }

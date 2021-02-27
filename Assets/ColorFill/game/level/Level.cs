@@ -22,6 +22,7 @@ namespace ColorFill.game.level
         private GameObjectManager _gameObjectManager;
         [SerializeField] private GameObject firstStageContainer;
         [SerializeField] private GameObject secondStageContainer;
+        [SerializeField] private Player _player;
         private GameObject activeStageContainer;
 
         
@@ -46,10 +47,29 @@ namespace ColorFill.game.level
 
         public void LoadLevel(int levelNum)
         {
+            ResetLevel();
             LoadStage(levelNum, 1);
             LoadStage(levelNum, 2);
             InstantiateObjects();
             AdjustCameraFirstStage();
+            InstantiatePlayer();
+        }
+
+        void ResetLevel()
+        {
+            if (activeStageContainer == null)
+            {
+                return;
+            }
+            foreach (Transform trans in activeStageContainer.transform)
+            {
+                if (trans.name != "Static" && trans.name != "Level" && trans.name != "Floor")
+                {
+                    Debug.Log(trans.name);
+                    _gameObjectManager.DestroyObject(trans.gameObject);    
+                }
+            }
+            _halfFills.Clear();
         }
 
         void LoadStage(int levelNum,int stage)
@@ -132,6 +152,12 @@ namespace ColorFill.game.level
             GameCamera.Instance.AdjustStage1();
         }
 
+        void InstantiatePlayer()
+        {
+            var player = _gameObjectManager.GetObject(GameObjectType.Player, new Vector3(0,activeStageContainer.layer,0));
+            player.transform.SetParent(activeStageContainer.transform);
+            player.GetComponent<Player>().InitializeData();
+        }
 
         private List<Point> _halfFills = new List<Point>();
         public void PlayerAt(int x,int y,PlayerStatus playerStatus)
@@ -153,10 +179,6 @@ namespace ColorFill.game.level
                         halfFill.transform.localPosition = new Vector3(x, y, 0);
                         _liveMatrix.SetItem(x,y,new LevelMatrixItem(GameObjectType.HalfFill));
                         _halfFills.Add(new Point(x,y));
-                        if (x == y)
-                        {
-                            Debug.Log($"Level Added {x},{y}");
-                        }
                     }
 
                     break;
@@ -170,30 +192,61 @@ namespace ColorFill.game.level
                         {
                             continue;
                         }
-                        _liveMatrix.SetItem(position.x,position.y,new LevelMatrixItem(GameObjectType.FullFill));
-                        var fullFill = _gameObjectManager.GetObject(GameObjectType.FullFill,
-                            activeStageContainer.transform);
-                        if (position.x == position.y)
-                        {
-                            Debug.Log($"Created {position.x},{position.y}");
-                        }
-                        fullFill.transform.localPosition = new Vector3(position.x, position.y, 0);
+
+                        CreateItem(position.x, position.y, GameObjectType.FullFill);
                     }
                     _halfFills.Clear();
                     
-                    // var neighbours = _liveMatrix.GetPlusShape(x, y);
-                    // foreach (var neighbour in neighbours)
-                    // {
-                    //     if (neighbour != null)
-                    //     {
-                    //         if (neighbour.type == GameObjectType.HalfFill)
-                    //         {
-                    //             
-                    //         }
-                    //     }
-                    // }
+                    var neighbours = _liveMatrix.GetPlusShape(x, y);
+                    List<HashSet<Point>> voidRegions = new List<HashSet<Point>>();
+                    foreach (var neighbour in neighbours)
+                    {
+                        if (neighbour != null)
+                        {
+                            if (neighbour.type == GameObjectType.Void || neighbour.type == GameObjectType.Gem)
+                            {
+                                var region = _liveMatrix.GetSimilarRegion(neighbour.x, neighbour.y);
+                                voidRegions.Add(region);
+                                _liveMatrix.ResetIsConsidered();
+                            }
+                        }
+                    }
+
+                    if (voidRegions.Count > 1)
+                    {
+                        var region1 = voidRegions[0];
+                        var region2 = voidRegions[1];
+                        if (!Util.HaveInstersection(region1, region2))
+                        {
+                            HashSet<Point> toBeFilled;
+                            if (region1.Count < region2.Count)
+                            {
+                                toBeFilled = region1;
+                            }
+                            else
+                            {
+                                toBeFilled = region2;
+                            }
+                            FillVoidRegion(toBeFilled);
+                        }
+                    }
 
                     break;
+            }
+        }
+
+        void CreateItem(int x,int y,GameObjectType type)
+        {
+            _liveMatrix.SetItem(x,y,new LevelMatrixItem(type));
+            var item = _gameObjectManager.GetObject(type,activeStageContainer.transform);
+            item.transform.localPosition = new Vector3(x, y, 0);
+        }
+
+        void FillVoidRegion(HashSet<Point> region)
+        {
+            foreach (var point in region)
+            {
+                CreateItem(point.x,point.y,GameObjectType.FullFill);
             }
         }
         

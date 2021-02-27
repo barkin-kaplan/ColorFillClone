@@ -8,7 +8,7 @@ namespace ColorFill.game.elements.fill.full_fill
     {
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("HalfFill"))
+            if (other.CompareTag("HalfFill") || other.CompareTag("Deadly"))
             {
                 GameObjectManager.Instance.DestroyObject(other.gameObject);
             }

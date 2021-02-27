@@ -17,6 +17,14 @@ namespace ColorFill.game.level
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
+            if (type == GameObjectType.Void && other.type == GameObjectType.Gem)
+            {
+                return true;
+            }
+            if (type == GameObjectType.Gem && other.type == GameObjectType.Void)
+            {
+                return true;
+            }
             return type == other.type;
         }
 
