@@ -13,7 +13,6 @@ namespace ColorFill.helper.input_helper
         public TouchHelper()
         {
             SwipeThreshold = Screen.currentResolution.width / (float)25;
-            Debug.Log(SwipeThreshold);
         }
         public Touch GetMouseTouch(out bool isClicked)
         {
@@ -179,7 +178,6 @@ namespace ColorFill.helper.input_helper
 
         void OnSwipeEvent(SwipeEventArgs args)
         {
-            Debug.Log($"event fired {args.Direction}");
             for (int i = _swipeSubscribers.Count - 1; i > -1; i--)
             {
                 _swipeSubscribers[i].callback(args);

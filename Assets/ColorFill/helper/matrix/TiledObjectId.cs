@@ -5,20 +5,20 @@ namespace ColorFill.helper.matrix
 {
     public class TiledObjectId
     {
-        public static LevelElementType ConvertToGameId(int tiledId)
+        public static GameObjectType ConvertToGameId(int tiledId)
         {
             switch (tiledId)
             {
                 case 1:
-                    return LevelElementType.Wall;
+                    return GameObjectType.Wall;
                 case 2:
-                    return LevelElementType.VerticalMover;
+                    return GameObjectType.VerticalMover;
                 case 3:
-                    return LevelElementType.HorizontalMover;
+                    return GameObjectType.HorizontalMover;
                 case 4:
-                    return LevelElementType.Gem;
+                    return GameObjectType.Gem;
                 default:
-                    return LevelElementType.Void;
+                    return GameObjectType.Void;
             }
         }
     }

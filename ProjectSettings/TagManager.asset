@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Deadly
+  - Wall
+  - FullFill
+  - HalfFill
   layers:
   - Default
   - TransparentFX

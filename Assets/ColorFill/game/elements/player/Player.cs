@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using ColorFill.game.level;
 using ColorFill.helper.geometry;
 using ColorFill.helper.input_helper;
 using UnityEngine;
@@ -10,6 +12,7 @@ namespace ColorFill.game.elements
     {
         #region turn related data structures
         private Queue<TurnQueueItem> _turnQueue = new Queue<TurnQueueItem>();
+        private Level _level;
 
         private struct TurnQueueItem
         {
@@ -39,6 +42,8 @@ namespace ColorFill.game.elements
         {
             _swipeable = GetComponent<Swipeable>();
             SetSwipeEvent();
+            _level = Level.Instance;
+            SetLastCell();
         }
 
         void SetSwipeEvent()
@@ -97,12 +102,21 @@ namespace ColorFill.game.elements
             {
                 TurnUpdate();
             }
+
+            if (CheckMoveNewCell())
+            {
+                if (_lastCell.x == _lastCell.y)
+                {
+                    Debug.Log($"Player Added {_lastCell}");
+                }
+                _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,PlayerStatus.Moving);
+                SetLastCell();
+            }
         }
 
         void TurnUpdate()
         {
             var nextTurn = _turnQueue.Dequeue();
-            Debug.Log($"dequeued direction : {nextTurn.direction},turnPosition : {nextTurn.turnPosition},diffVector : {nextTurn.origDiffVector}");
             transform.position = nextTurn.turnPosition;
             _currentMoveDirection = nextTurn.direction;
             _velocity = _currentMoveDirection * 6f;
@@ -121,8 +135,37 @@ namespace ColorFill.game.elements
 
             return false;
         }
-        
-        
 
+        private Vector3 _lastCell = new Vector3(-1,-1,-1);
+        private Vector3 halfUnit = new Vector3(0.5f, 0.5f);
+        bool CheckMoveNewCell()
+        {
+            //coordanites are from 0,0 to 10,10 in case of localPosition in firststage
+            //0,0 to 16,24 in second stage
+            var position = transform.localPosition + halfUnit;
+            return !position.CompareIntegerEqual(_lastCell);
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            var gameObject = other.gameObject;
+            if (gameObject.CompareTag("Wall"))
+            {
+                ResetVelocity();
+                transform.localPosition = _lastCell;
+                _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,PlayerStatus.Stopped);
+            }
+        }
+
+        void SetLastCell()
+        {
+            _lastCell = new Vector3((int) (transform.localPosition.x + 0.5f), (int) (transform.localPosition.y + 0.5f), 0f);
+        }
+
+        void ResetVelocity()
+        {
+            _currentMoveDirection = Vector3.zero;
+            _velocity = Vector3.zero;
+        }
     }
 }

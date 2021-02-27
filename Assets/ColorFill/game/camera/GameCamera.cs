@@ -6,7 +6,7 @@ namespace ColorFill.game.camera
 {
     public class GameCamera : MonoBehaviour
     {
-        private Vector3 Stage1Position = new Vector3(0, -11.4f, -50f);
+        private Vector3 Stage1Position = new Vector3(0, -8.9f, -45.5f);
         private Vector3 Stage2Position = new Vector3(0, 21.2f, 72);
         public static GameCamera Instance { get; private set; }
 

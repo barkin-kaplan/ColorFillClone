@@ -20,6 +20,13 @@ namespace ColorFill.helper.object_manager
             var typeIndex = (int) type;
             return Instantiate(prefabs[typeIndex]);
         }
+        
+        public GameObject GetObject(GameObjectType type,Transform parent)
+        {
+            var gameObj = GetObject(type);
+            gameObj.transform.SetParent(parent);
+            return gameObj;
+        }
 
         public void DestroyObject(GameObject obj)
         {

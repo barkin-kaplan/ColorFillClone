@@ -7,7 +7,7 @@ namespace ColorFill.game.elements.mover.vertical_mover
         private float bottomY;
         private float topY;
 
-        private Vector3 speed = Vector3.down * 3;
+        private Vector3 speed = Vector3.down * 1.8f;
         public void SetMoveAmount(float amount)
         {
             topY = transform.position.y;
