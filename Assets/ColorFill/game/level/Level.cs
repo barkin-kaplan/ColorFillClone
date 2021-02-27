@@ -1,4 +1,5 @@
 ﻿using System;
+using ColorFill.game.camera;
 using ColorFill.game.elements;
 using ColorFill.game.elements.mover.vertical_mover;
 using ColorFill.game.elements.wall;
@@ -30,6 +31,7 @@ namespace ColorFill.game.level
             LoadStage(levelNum, 1);
             LoadStage(levelNum, 2);
             InstantiateObjects();
+            AdjustCameraFirstStage();
         }
 
         void LoadStage(int levelNum,int stage)
@@ -94,47 +96,48 @@ namespace ColorFill.game.level
                     
                 }
             }
-            
-            //instantiate surrounding walls
-            void InstantiateBottomWall()
-            {
-                var bottomWall = _gameObjectManager.GetObject(GameObjectType.Wall);
-                var widthOffset = (float)_firstStageMatrix._width * 3 / 2;
-                var leftBottom = new Vector3(-widthOffset, -_firstStageMatrix._height, 0);
-                var rightTop = new Vector3(widthOffset, -0.5f, 0);
-                bottomWall.GetComponent<Wall>().SetCorners(leftBottom,rightTop);
-            }
-            InstantiateBottomWall();
-
-            void InstantiateSideWalls()
-            {
-                var leftWall = _gameObjectManager.GetObject(GameObjectType.Wall);
-                var leftBottom = new Vector3(-(float)_firstStageMatrix._width * 3 / 2, -0.5f, 0);
-                var rightTop = new Vector3(-(float)_firstStageMatrix._width / 2, _firstStageMatrix._height + 0.5f, 0);
-                leftWall.GetComponent<Wall>().SetCorners(leftBottom,rightTop);
-                var rightWall = _gameObjectManager.GetObject(GameObjectType.Wall);
-                var rightWallOffsetVector = 2 * new Vector3(_firstStageMatrix._width, 0, 0);
-                rightWall.GetComponent<Wall>().SetCorners(leftBottom + rightWallOffsetVector,rightTop + rightWallOffsetVector);
-            }
-            InstantiateSideWalls();
-
-            void InstantiateSeperatingWalls()
-            {
-                var leftWall = _gameObjectManager.GetObject(GameObjectType.Wall);
-                var widthOffset = (float)_firstStageMatrix._width * 3 / 2;
-                var leftBottom = new Vector3(-widthOffset, _firstStageMatrix._height, 0);
-                var rightTop = new Vector3(-0.5f, _firstStageMatrix._height * 2, 0);
-                leftWall.GetComponent<Wall>().SetCorners(leftBottom,rightTop);
-                var rightWallOffset = new Vector3(widthOffset + 0.5f, 0, 0);
-                var rightWall = _gameObjectManager.GetObject(GameObjectType.Wall);
-                rightWall.GetComponent<Wall>().SetCorners(leftBottom + rightWallOffset,rightTop + rightWallOffset);
-            }
-            
-            InstantiateSeperatingWalls();
         }
         
-        
-        
-        
+        // void InstantiateBottomWall()
+        //     {
+        //         var bottomWall = _gameObjectManager.GetObject(GameObjectType.Wall);
+        //         var widthOffset = (float)_firstStageMatrix._width * 3 / 2;
+        //         var leftBottom = new Vector3(-widthOffset, -_firstStageMatrix._height, 0);
+        //         var rightTop = new Vector3(widthOffset, -0.5f, 0);
+        //         bottomWall.GetComponent<Wall>().SetCorners(leftBottom,rightTop);
+        //     }
+        //     
+        //
+        //     void InstantiateSideWalls()
+        //     {
+        //         var leftWall = _gameObjectManager.GetObject(GameObjectType.Wall);
+        //         var leftBottom = new Vector3(-(float)_firstStageMatrix._width * 3 / 2, -0.5f, 0);
+        //         var rightTop = new Vector3(-(float)_firstStageMatrix._width / 2, _firstStageMatrix._height + 0.5f, 0);
+        //         leftWall.GetComponent<Wall>().SetCorners(leftBottom,rightTop);
+        //         var rightWall = _gameObjectManager.GetObject(GameObjectType.Wall);
+        //         var rightWallOffsetVector = 2 * new Vector3(_firstStageMatrix._width, 0, 0);
+        //         rightWall.GetComponent<Wall>().SetCorners(leftBottom + rightWallOffsetVector,rightTop + rightWallOffsetVector);
+        //     }
+        //     
+        //
+        //     void InstantiateSeperatingWalls()
+        //     {
+        //         var leftWall = _gameObjectManager.GetObject(GameObjectType.Wall);
+        //         var widthOffset = (float)_firstStageMatrix._width * 3 / 2;
+        //         var leftBottom = new Vector3(-widthOffset, _firstStageMatrix._height, 0);
+        //         var rightTop = new Vector3(-0.5f, _firstStageMatrix._height * 2, 0);
+        //         leftWall.GetComponent<Wall>().SetCorners(leftBottom,rightTop);
+        //         var rightWallOffset = new Vector3(widthOffset + 0.5f, 0, 0);
+        //         var rightWall = _gameObjectManager.GetObject(GameObjectType.Wall);
+        //         rightWall.GetComponent<Wall>().SetCorners(leftBottom + rightWallOffset,rightTop + rightWallOffset);
+        //     }
+
+        void AdjustCameraFirstStage()
+        {
+            GameCamera.Instance.AdjustStage1();
+        }
     }
+    
+    
+    
 }

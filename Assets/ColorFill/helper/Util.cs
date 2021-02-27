@@ -23,17 +23,19 @@ namespace ColorFill.helper
             return t;
         }
         
-        public static void DontDestroyOnLoad<T>(GameObject gameObject) where T : UnityEngine.Object
+        public static bool DontDestroyOnLoad<T>(GameObject gameObject) where T : UnityEngine.Object
         {
             int gameStatusCount = Object.FindObjectsOfType<T>().Length;
             if (gameStatusCount > 1)
             {
                 gameObject.SetActive(false);
                 Object.Destroy(gameObject);
+                return false;
             }
             else
             {
                 Object.DontDestroyOnLoad(gameObject);
+                return true;
             }
         }
 
@@ -82,6 +84,11 @@ namespace ColorFill.helper
         public static bool CompareIntegerEqual(float x, float y)
         {
             return (int) x == (int) y;
+        }
+
+        public static float Tangent(float degree)
+        {
+            return Mathf.Sin(degree) / Mathf.Cos(degree);
         }
     }
 }
