@@ -6,6 +6,7 @@ using ColorFill.game.elements;
 using ColorFill.game.elements.mover.vertical_mover;
 using ColorFill.game.elements.wall;
 using ColorFill.helper;
+using ColorFill.helper.context;
 using ColorFill.helper.level;
 using ColorFill.helper.matrix;
 using ColorFill.helper.object_manager;
@@ -20,10 +21,32 @@ namespace ColorFill.game.level
         private Matrix<LevelMatrixItem>[] _stageMatrices = new Matrix<LevelMatrixItem>[2];
         private LevelJsonModel[] stageModels = new LevelJsonModel[2];
         private GameObjectManager _gameObjectManager;
-        [SerializeField] private GameObject firstStageContainer;
-        [SerializeField] private GameObject secondStageContainer;
-        [SerializeField] private Player _player;
-        private GameObject activeStageContainer;
+        [SerializeField] private GameObject[] stageContainers;
+
+        private GameObject firstStageContainer
+        {
+            get
+            {
+                return stageContainers[0];
+            }
+        }
+        private GameObject secondStageContainer
+        {
+            get
+            {
+                return stageContainers[1];
+            }
+        }
+        
+        private int activeStageIndex;
+
+        private GameObject activeStageContainer
+        {
+            get
+            {
+                return stageContainers[activeStageIndex];
+            }
+        }
 
         
         /// <summary>
@@ -31,6 +54,8 @@ namespace ColorFill.game.level
         /// </summary>
         private Matrix<LevelMatrixItem> _liveMatrix;
         public static Level Instance { get; private set; }
+
+        private int[] TotalVoidCounts = new int [2]{11 * 11,17 * 25};
 
         private void Awake()
         {
@@ -69,6 +94,7 @@ namespace ColorFill.game.level
                 }
             }
             _halfFills.Clear();
+            _neighbourVoid.Clear();
         }
 
         void LoadStage(int levelNum,int stage)
@@ -101,8 +127,8 @@ namespace ColorFill.game.level
 
         void InstantiateFirstStage()
         {
-            activeStageContainer = firstStageContainer;
-            var _firstStageMatrix = _stageMatrices[0];
+            activeStageIndex = 0;
+            var firstStageMatrix = _stageMatrices[0];
             var jsonModel = stageModels[0];
             var properties = jsonModel.layers[0].properties;
             float verticalMoveAmount = 0;
@@ -115,11 +141,11 @@ namespace ColorFill.game.level
             }
             
             //instantiate level objects
-            for (int x = 0; x < _firstStageMatrix._width; x++)
+            for (int x = 0; x < firstStageMatrix._width; x++)
             {
-                for (int y = 0; y < _firstStageMatrix._height; y++)
+                for (int y = 0; y < firstStageMatrix._height; y++)
                 {
-                    var levelItem = _firstStageMatrix.GetItem(x, y);
+                    var levelItem = firstStageMatrix.GetItem(x, y);
                     var gameObjectType = levelItem.type;
                     if (gameObjectType == GameObjectType.Void)
                     {
@@ -136,6 +162,7 @@ namespace ColorFill.game.level
                             break;
                         case GameObjectType.Wall:
                             _liveMatrix.SetItem(x,y,new LevelMatrixItem(gameObjectType));
+                            TotalVoidCounts[activeStageIndex]--;
                             break;
                         case GameObjectType.Gem:
                             _liveMatrix.SetItem(x,y,new LevelMatrixItem(gameObjectType));
@@ -202,6 +229,11 @@ namespace ColorFill.game.level
 
                         foreach (var neighbourVoidCell in _neighbourVoid)
                         {
+                            var neighbourItem = _liveMatrix.GetItem(neighbourVoidCell);
+                            if (neighbourItem.type != GameObjectType.Void && neighbourItem.type != GameObjectType.Gem)
+                            {
+                                continue;
+                            }
                             bool shouldAdd = true;
                             foreach (var region in voidRegions)
                             {
@@ -240,23 +272,13 @@ namespace ColorFill.game.level
                             
                         }
                         _neighbourVoid.Clear();
+                        FillHalfFills();
                     }
                     
                     break;
                 case PlayerStatus.Stopped:
                     _halfFills.Add(new Point(x,y));
-                    //get region of half fills and instantiate full fills
-                    //full fills will destroy halffills
-                    foreach (var position in _halfFills)
-                    {
-                        if (_liveMatrix.GetItem(position.x, position.y).type == GameObjectType.FullFill)
-                        {
-                            continue;
-                        }
-
-                        CreateItem(position.x, position.y, GameObjectType.FullFill);
-                    }
-                    _halfFills.Clear();
+                    FillHalfFills();
 
 
                     voidRegions = GetNeighbouringVoidRegions(x, y);
@@ -284,6 +306,22 @@ namespace ColorFill.game.level
             }
 
             _lastPosition = new Point(x, y);
+        }
+
+        void FillHalfFills()
+        {
+            //get region of half fills and instantiate full fills
+            //full fills will destroy halffills
+            foreach (var position in _halfFills)
+            {
+                if (_liveMatrix.GetItem(position.x, position.y).type == GameObjectType.FullFill)
+                {
+                    continue;
+                }
+
+                CreateItem(position.x, position.y, GameObjectType.FullFill);
+            }
+            _halfFills.Clear();
         }
 
         List<HashSet<Point>> GetNeighbouringVoidRegions(int x,int y)
@@ -324,6 +362,8 @@ namespace ColorFill.game.level
             _liveMatrix.SetItem(x,y,new LevelMatrixItem(type));
             var item = _gameObjectManager.GetObject(type,activeStageContainer.transform);
             item.transform.localPosition = new Vector3(x, y, 0);
+            GameContext.Instance.SetStageRatio(activeStageIndex,_gameObjectManager.FullFillCount / (float)TotalVoidCounts[activeStageIndex]);    
+            
         }
 
         void FillVoidRegion(HashSet<Point> region)

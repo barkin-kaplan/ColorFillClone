@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using ColorFill.helper.data;
 using ColorFill.helper.DI;
 using ColorFill.helper.flow;
 using ColorFill.helper.input_helper;
@@ -41,8 +42,9 @@ namespace ColorFill.helper.context
         void RegisterContextElements()
         {
             
-            var touchHelper = DIContainer.RegisterSingle<TouchHelper>(new Type[] {},new object[] {});
+            var touchHelper = DIContainer.RegisterSingle<TouchHelper>();
             _manualUpdates.Add(touchHelper);
+            DIContainer.RegisterSingle<PlayerData>();
         }
 
         void CreateMonoBehaviours()

@@ -32,6 +32,11 @@ namespace ColorFill.helper.matrix
             return _items[x + y * _width];
         }
 
+        public T GetItem(Point point)
+        {
+            return GetItem(point.x, point.y);
+        }
+
         public void SetItem(int x, int y, T item)
         {
             item.x = x;

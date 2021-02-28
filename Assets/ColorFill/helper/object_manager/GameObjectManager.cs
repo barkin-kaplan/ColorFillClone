@@ -8,6 +8,7 @@ namespace ColorFill.helper.object_manager
         [SerializeField] private GameObject[] prefabs;
         
         public static GameObjectManager Instance { get; private set; }
+        public int FullFillCount;
 
         void Awake()
         {
@@ -17,6 +18,10 @@ namespace ColorFill.helper.object_manager
 
         public GameObject GetObject(GameObjectType type)
         {
+            if (type == GameObjectType.FullFill)
+            {
+                FullFillCount += 1;
+            }
             var typeIndex = (int) type;
             return Instantiate(prefabs[typeIndex]);
         }
@@ -30,6 +35,10 @@ namespace ColorFill.helper.object_manager
 
         public GameObject GetObject(GameObjectType type, Vector3 worldPosition)
         {
+            if (type == GameObjectType.FullFill)
+            {
+                FullFillCount += 1;
+            }
             var typeIndex = (int) type;
             var prefab = prefabs[typeIndex];
             return Instantiate(prefab, worldPosition, Quaternion.identity);
@@ -37,6 +46,10 @@ namespace ColorFill.helper.object_manager
 
         public void DestroyObject(GameObject obj)
         {
+            if (obj.CompareTag("FullFill"))
+            {
+                FullFillCount -= 1;
+            }
             Destroy(obj);
         }
     }
