@@ -150,7 +150,7 @@ namespace ColorFill.game.elements
                 transform.localPosition = _lastCell;
                 _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,PlayerStatus.Stopped);
             }
-            else if (otherObj.CompareTag("Deadly"))
+            else if (otherObj.CompareTag("Deadly") )
             {
                 Destroy(gameObject);
                 GameContext.Instance.ShowGameOver();

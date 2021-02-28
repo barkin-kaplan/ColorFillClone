@@ -57,6 +57,8 @@ namespace ColorFill.game.level
 
         private int[] TotalVoidCounts = new int [2]{11 * 11,17 * 25};
 
+        private Player _player;
+
         private void Awake()
         {
             _gameObjectManager = GameObjectManager.Instance;
@@ -180,9 +182,9 @@ namespace ColorFill.game.level
 
         void InstantiatePlayer()
         {
-            var player = _gameObjectManager.GetObject(GameObjectType.Player, new Vector3(0,activeStageContainer.layer,0));
-            player.transform.SetParent(activeStageContainer.transform);
-            player.GetComponent<Player>().InitializeData();
+            _player = _gameObjectManager.GetObject(GameObjectType.Player, new Vector3(0,activeStageContainer.layer,0)).GetComponent<Player>();
+            _player.transform.SetParent(activeStageContainer.transform);
+            _player.GetComponent<Player>().InitializeData();
         }
 
         //half fill trail list
@@ -250,7 +252,7 @@ namespace ColorFill.game.level
                                 _liveMatrix.ResetIsConsidered();
                             }
                         }
-                        voidRegions.AddRange(GetNeighbouringVoidRegions(x, y));
+                        // voidRegions.AddRange(GetNeighbouringVoidRegions(x, y));
                         //reverse sorted
                         voidRegions.Sort((o1,o2) => o2.Count.CompareTo(o1.Count));
                         
@@ -273,6 +275,11 @@ namespace ColorFill.game.level
                         }
                         _neighbourVoid.Clear();
                         FillHalfFills();
+                    }
+                    else if (objType == GameObjectType.HalfFill)
+                    {
+                        Destroy(_player.gameObject);
+                        GameContext.Instance.ShowGameOver();
                     }
                     
                     break;

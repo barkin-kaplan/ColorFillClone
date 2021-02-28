@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace ColorFill.game.elements.mover.vertical_mover
 {
-    public class VerticalMover : MonoBehaviour
+    public class VerticalMover : AMover
     {
-        [SerializeField] private GameObject _particlePrefab;
+        
         private float bottomY;
         private float topY;
 
@@ -36,10 +36,6 @@ namespace ColorFill.game.elements.mover.vertical_mover
             }
         }
 
-        private void OnDestroy()
-        {
-            var particle =Instantiate(_particlePrefab);
-            particle.transform.position = transform.position + new Vector3(0, 0, -0.5f);
-        }
+        
     }
 }
