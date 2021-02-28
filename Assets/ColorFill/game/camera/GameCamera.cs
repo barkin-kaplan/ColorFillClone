@@ -8,6 +8,7 @@ namespace ColorFill.game.camera
     {
         private Vector3 Stage1Position = new Vector3(0, -8.9f, -45.5f);
         private Vector3 Stage2Position = new Vector3(0, 21.2f, -72);
+        private const float TargetHorizontalFOV = 14.6f;
         public static GameCamera Instance { get; private set; }
 
         void Awake()
@@ -17,6 +18,8 @@ namespace ColorFill.game.camera
                 return;
             }
             Instance = this;
+            var verticalFov = TargetHorizontalFOV * Screen.height / Screen.width;
+            GetComponent<Camera>().fieldOfView = verticalFov;
         }
 
         public void AdjustStage1()
