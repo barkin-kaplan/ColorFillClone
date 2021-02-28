@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ColorFill.game.elements.gem;
 using ColorFill.game.level;
 using ColorFill.helper.context;
 using ColorFill.helper.geometry;
@@ -154,6 +155,10 @@ namespace ColorFill.game.elements
             {
                 Destroy(gameObject);
                 GameContext.Instance.ShowGameOver();
+            }
+            else if (otherObj.CompareTag("Gem"))
+            {
+                otherObj.GetComponent<Gem>().Collect();
             }
         }
 

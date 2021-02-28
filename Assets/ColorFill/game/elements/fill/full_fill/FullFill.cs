@@ -1,4 +1,5 @@
 ﻿using System;
+using ColorFill.game.elements.gem;
 using ColorFill.helper.object_manager;
 using UnityEngine;
 
@@ -8,9 +9,14 @@ namespace ColorFill.game.elements.fill.full_fill
     {
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("HalfFill") || other.CompareTag("Deadly"))
+            var otherObj = other.gameObject;
+            if (otherObj.CompareTag("HalfFill") || other.CompareTag("Deadly"))
             {
                 GameObjectManager.Instance.DestroyObject(other.gameObject);
+            }
+            else if (otherObj.CompareTag("Gem"))
+            {
+                otherObj.GetComponent<Gem>().Collect();
             }
         }
     }
