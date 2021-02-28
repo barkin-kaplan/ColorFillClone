@@ -41,6 +41,11 @@ namespace ColorFill.helper.context
             Level.Instance.LoadLevel(_playerData.CurrentLevel);
         }
 
+        public void RestartStage()
+        {
+            Level.Instance.RestartStage();
+        }
+
         public void LoadPlayerData()
         {
             _playerStatusUI.SetGemCount(_playerData.GemCount);

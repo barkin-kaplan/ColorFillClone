@@ -17,7 +17,7 @@ namespace ColorFill.game.ui.game_over_overlay
         public void RestartLevel()
         {
             Destroy(gameObject);
-            GameContext.Instance.LoadNextLevel();
+            GameContext.Instance.RestartStage();
         }
     }
 }

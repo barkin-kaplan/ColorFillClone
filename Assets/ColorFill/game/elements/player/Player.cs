@@ -204,11 +204,14 @@ namespace ColorFill.game.elements
             SetLastCell();
         }
 
-        public void ProceedToNextStage()
+
+        private Action onFinish;
+        public void ProceedToNextStage(Action onFinish)
         {
             ResetVelocity();
             IsProceedingToNextStage = true;
             StartCoroutine(ProceedGoToCenterCoRoutine());
+            this.onFinish = onFinish;
         }
 
         IEnumerator ProceedGoToCenterCoRoutine()
@@ -235,6 +238,9 @@ namespace ColorFill.game.elements
                 transform.position = Vector3.Lerp(position, targetPosition, i / (float) frameCount);
                 yield return new WaitForSeconds(Util.FrameWaitAmount);
             }
+
+            IsProceedingToNextStage = false;
+            onFinish();
         }
     }
 }

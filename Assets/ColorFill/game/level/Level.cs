@@ -60,7 +60,6 @@ namespace ColorFill.game.level
         private Player _player;
 
         private int _currentLevel;
-
         private void Awake()
         {
             _gameObjectManager = GameObjectManager.Instance;
@@ -104,7 +103,7 @@ namespace ColorFill.game.level
             var model = JsonConvert.DeserializeObject<LevelJsonModel>(text);
             var matrix = new Matrix<LevelMatrixItem>();
             matrix.SetDimensions(model.width,model.height);
-            var data = model.layers[stage].data;
+            var data = model.layers[0].data;
             //start is top left, array first scans first row then goes to second row and so on
             for (int i = 0; i < data.Length; i++)
             {
@@ -130,7 +129,7 @@ namespace ColorFill.game.level
             activeStageIndex = stageNum;
             var tiledStageMatrix = _stageMatrices[stageNum];
             var jsonModel = stageModels[stageNum];
-            var properties = jsonModel.layers[stageNum].properties;
+            var properties = jsonModel.layers[0].properties;
             float verticalMoveAmount = 0;
             foreach (var property in properties)
             {
@@ -152,7 +151,7 @@ namespace ColorFill.game.level
                         _liveMatrix.SetItem(x,y,new LevelMatrixItem(GameObjectType.Void));
                         continue;
                     }
-                    var gameObj = _gameObjectManager.GetObject(gameObjectType,firstStageContainer.transform);
+                    var gameObj = _gameObjectManager.GetObject(gameObjectType,activeStageContainer.transform);
                     gameObj.transform.localPosition = new Vector3(x, y, 0);
                     switch (gameObjectType)
                     {
@@ -180,7 +179,7 @@ namespace ColorFill.game.level
 
         void InstantiatePlayer()
         {
-            _player = _gameObjectManager.GetObject(GameObjectType.Player, new Vector3(0,activeStageContainer.layer,0)).GetComponent<Player>();
+            _player = _gameObjectManager.GetObject(GameObjectType.Player, new Vector3(0,activeStageContainer.transform.position.y,0)).GetComponent<Player>();
             _player.transform.SetParent(activeStageContainer.transform);
             _player.GetComponent<Player>().InitializeData();
         }
@@ -208,7 +207,7 @@ namespace ColorFill.game.level
                 case PlayerStatus.Moving:
                     if (objType == GameObjectType.Void || objType == GameObjectType.Gem)
                     {
-                        var halfFill = _gameObjectManager.GetObject(GameObjectType.HalfFill, firstStageContainer.transform);
+                        var halfFill = _gameObjectManager.GetObject(GameObjectType.HalfFill, activeStageContainer.transform);
                         halfFill.transform.localPosition = new Vector3(x, y, 0);
                         _liveMatrix.SetItem(x,y,new LevelMatrixItem(GameObjectType.HalfFill));
                         _halfFills.Add(new Point(x,y));
@@ -373,7 +372,14 @@ namespace ColorFill.game.level
 
         void ProceedNextStage()
         {
-            _player.ProceedToNextStage();
+            
+            _player.ProceedToNextStage(() =>
+            {
+                InstantiateObjects(1);
+                _player.transform.SetParent(activeStageContainer.transform);
+            });
+            LoadStage(_currentLevel,1);
+            
         }
         
         
@@ -391,8 +397,16 @@ namespace ColorFill.game.level
 
         public void PlayerAtProceedingStage(int x, int y)
         {
-            var fullFill = _gameObjectManager.GetObject(GameObjectType.FullFill,activeStageContainer.transform);
+            var fullFill = _gameObjectManager.GetObject(GameObjectType.FullFill,firstStageContainer.transform);
             fullFill.transform.localPosition = new Vector3(x, y, 0);
+        }
+
+        public void RestartStage()
+        {
+            ResetLevel();
+            InstantiateObjects(activeStageIndex);
+            InstantiatePlayer();
+            GameContext.Instance.SetStageRatio(activeStageIndex,0);
         }
     }
     
