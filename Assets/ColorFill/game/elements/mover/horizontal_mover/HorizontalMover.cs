@@ -1,20 +1,17 @@
-﻿using System;
-using ColorFill.helper.object_manager;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace ColorFill.game.elements.mover.vertical_mover
+namespace ColorFill.game.elements.mover.horizontal_mover
 {
-    public class VerticalMover : AMover
+    public class HorizontalMover : AMover
     {
-        
-        private float bottomY;
-        private float topY;
+        private float leftX;
+        private float rightX;
 
         
         public void SetMoveAmount(float amount)
         {
-            topY = transform.position.y;
-            bottomY = topY - amount;
+            leftX = transform.position.x;
+            rightX = leftX - amount;
         }
 
         void Update()
@@ -22,20 +19,18 @@ namespace ColorFill.game.elements.mover.vertical_mover
             transform.position += speed * Time.deltaTime;
             if (speed.y < 0)
             {
-                if (transform.position.y < bottomY)
+                if (transform.position.x < leftX)
                 {
                     speed *= -1;
                 }
             }
             else
             {
-                if (transform.position.y > topY)
+                if (transform.position.y > rightX)
                 {
                     speed *= -1;
                 }
             }
         }
-
-        
     }
 }
