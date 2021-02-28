@@ -36,10 +36,9 @@ namespace ColorFill.game.elements
         private Swipeable _swipeable;
         private Vector2 _currentMoveDirection = Vector2.zero;
         private Vector3 _velocity = Vector3.zero;
-        private bool isInsideFill;
         private const float turnThreshold = 0.07f;
         private bool IsProceedingToNextStage;
-
+        private bool isInsideFullFill;
         
 
         
@@ -65,14 +64,14 @@ namespace ColorFill.game.elements
             if (_turnQueue.Count > 0)
             {
                 //check if last turn and this turn is opposite
-                if ((_turnQueue.Last().direction + direction).Approximately(Vector2.zero) && !isInsideFill)
+                if ((_turnQueue.Last().direction + direction).Approximately(Vector2.zero) && !isInsideFullFill)
                 {
                     return;
                 }
             }
             // if turn queue is empty check current direction
             //can't go opposite way
-            if ((_currentMoveDirection + direction).Approximately(Vector2.zero) && ! isInsideFill)
+            if ((_currentMoveDirection + direction).Approximately(Vector2.zero) && ! isInsideFullFill)
             {
                 return;
             }
@@ -169,7 +168,7 @@ namespace ColorFill.game.elements
             {
                 ResetVelocity();
                 transform.localPosition = _lastCell;
-                _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,PlayerStatus.Stopped);
+                PlayerAt(PlayerStatus.Stopped);
             }
             else if (otherObj.CompareTag("Deadly") )
             {
@@ -185,7 +184,13 @@ namespace ColorFill.game.elements
         void SetLastCell()
         {
             _lastCell = new Vector3((int) (transform.localPosition.x + 0.5f), (int) (transform.localPosition.y + 0.5f), 0f);
-            _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,PlayerStatus.Moving);
+            PlayerAt(PlayerStatus.Moving);
+        }
+
+        void PlayerAt(PlayerStatus status)
+        {
+            var matrixObjType = _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,status);
+            isInsideFullFill = matrixObjType == GameObjectType.FullFill;
         }
 
         void ResetVelocity()

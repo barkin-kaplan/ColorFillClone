@@ -188,7 +188,15 @@ namespace ColorFill.game.level
         //half fill trail list
         private List<Point> _halfFills = new List<Point>();
         private Point _lastPosition;
-        public void PlayerAt(int x,int y,PlayerStatus playerStatus)
+        /// <summary>
+        /// update live matrix based on player's current cell
+        /// returns objecttype at current cell
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="playerStatus"></param>
+        /// <returns></returns>
+        public GameObjectType PlayerAt(int x,int y,PlayerStatus playerStatus)
         {
             x = Mathf.Clamp(x, 0, _liveMatrix._width - 1);
             y = Mathf.Clamp(y, 0, _liveMatrix._height - 1);
@@ -242,6 +250,7 @@ namespace ColorFill.game.level
             }
 
             _lastPosition = new Point(x, y);
+            return _liveMatrix.GetItem(x, y).type;
         }
 
         void FillHalfFills()
@@ -339,7 +348,7 @@ namespace ColorFill.game.level
                     {
                         continue;
                     }
-                    if (neighbour != null && neighbour.type != GameObjectType.FullFill && neighbour.type != GameObjectType.HalfFill)
+                    if (neighbour.type != GameObjectType.FullFill && neighbour.type != GameObjectType.HalfFill)
                     {
                         return false;
                     }
