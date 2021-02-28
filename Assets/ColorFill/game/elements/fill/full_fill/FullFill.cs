@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using ColorFill.game.elements.gem;
+using ColorFill.helper;
 using ColorFill.helper.object_manager;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ namespace ColorFill.game.elements.fill.full_fill
             for (int i = 1; i <= frameCount; i++)
             {
                 transform.localScale = Vector3.Lerp(Vector3.zero, _originalScale, i / (float) frameCount);
-                yield return new WaitForSeconds(0.017f);
+                yield return new WaitForSeconds(Util.FrameWaitAmount);
             }
         }
         

@@ -149,7 +149,6 @@ MonoBehaviour:
   stageContainers:
   - {fileID: 1528234672}
   - {fileID: 8045794402094008388}
-  _player: {fileID: 0}
 --- !u!1 &8045794402094008388
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,7 +660,7 @@ PrefabInstance:
     - target: {fileID: 3553443655755656216, guid: ba00914939633274390313101e3e4b7d,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 35
+      value: 41
       objectReference: {fileID: 0}
     - target: {fileID: 3553443655755656216, guid: ba00914939633274390313101e3e4b7d,
         type: 3}
@@ -671,7 +670,7 @@ PrefabInstance:
     - target: {fileID: 3553443655755656216, guid: ba00914939633274390313101e3e4b7d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 15
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 3553443655755656216, guid: ba00914939633274390313101e3e4b7d,
         type: 3}
@@ -841,7 +840,7 @@ PrefabInstance:
     - target: {fileID: 3553443655755656216, guid: ba00914939633274390313101e3e4b7d,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 35
+      value: 41
       objectReference: {fileID: 0}
     - target: {fileID: 3553443655755656216, guid: ba00914939633274390313101e3e4b7d,
         type: 3}
@@ -851,7 +850,7 @@ PrefabInstance:
     - target: {fileID: 3553443655755656216, guid: ba00914939633274390313101e3e4b7d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 15
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 3553443655755656216, guid: ba00914939633274390313101e3e4b7d,
         type: 3}

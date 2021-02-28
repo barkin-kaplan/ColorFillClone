@@ -9,6 +9,7 @@ namespace ColorFill.helper
 {
     public static class Util
     {
+        public const float FrameWaitAmount = 0.017f;
         /// <summary>
         /// Starts a thread and then returns it.
         /// </summary>

@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ColorFill.game.camera;
 using ColorFill.game.elements.gem;
 using ColorFill.game.level;
+using ColorFill.helper;
 using ColorFill.helper.context;
 using ColorFill.helper.geometry;
 using ColorFill.helper.input_helper;
+using ColorFill.helper.object_manager;
 using UnityEngine;
 
 namespace ColorFill.game.elements
@@ -99,15 +103,26 @@ namespace ColorFill.game.elements
 
         void Update()
         {
-            transform.position += _velocity * Time.deltaTime;
-            if (CheckIfEligibleForTurn())
+            if (IsProceedingToNextStage)
             {
-                TurnUpdate();
+                if (CheckMoveNewCell())
+                {
+                    SetLastCell();
+                    _level.PlayerAtProceedingStage((int)_lastCell.x,(int)_lastCell.y);
+                }
             }
-
-            if (CheckMoveNewCell())
+            else
             {
-                SetLastCell();
+                transform.position += _velocity * Time.deltaTime;
+                if (CheckIfEligibleForTurn())
+                {
+                    TurnUpdate();
+                }
+
+                if (CheckMoveNewCell())
+                {
+                    SetLastCell();
+                }
             }
         }
 
@@ -186,7 +201,36 @@ namespace ColorFill.game.elements
 
         public void ProceedToNextStage()
         {
+            _currentMoveDirection = Vector2.zero;
+            _velocity = Vector3.zero;
             IsProceedingToNextStage = true;
+            StartCoroutine(ProceedGoToCenterCoRoutine());
+        }
+
+        IEnumerator ProceedGoToCenterCoRoutine()
+        {
+            int frameCount = 25;
+            var position = transform.position;
+            var targetPosition = new Vector3(0, position.y, position.z);
+            for (int i = 1; i <= frameCount; i++)
+            {
+                transform.position = Vector3.Lerp(position, targetPosition, i / (float) frameCount);
+                yield return new WaitForSeconds(Util.FrameWaitAmount);
+            }
+
+            StartCoroutine(ProceedNextStage(60));
+            GameCamera.Instance.AdjustStage2(60);
+        }
+
+        IEnumerator ProceedNextStage(int frameCount)
+        {
+            var position = transform.position;
+            var targetPosition = new Vector3(0, 32, 0);
+            for (int i = 1; i <= frameCount; i++)
+            {
+                transform.position = Vector3.Lerp(position, targetPosition, i / (float) frameCount);
+                yield return new WaitForSeconds(Util.FrameWaitAmount);
+            }
         }
     }
 }

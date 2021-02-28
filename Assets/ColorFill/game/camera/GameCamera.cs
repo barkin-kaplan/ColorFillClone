@@ -24,18 +24,17 @@ namespace ColorFill.game.camera
             transform.position = Stage1Position;
         }
 
-        public void AdjustStage2()
+        public void AdjustStage2(int frameCount)
         {
-            StartCoroutine(AdjustStage2CoRoutine());
+            StartCoroutine(AdjustStage2CoRoutine(frameCount));
         }
 
-        IEnumerator AdjustStage2CoRoutine()
+        IEnumerator AdjustStage2CoRoutine(int frameCount)
         {
-            int frameCount = 60;
             for (int i = 1; i <= frameCount; i++)
             {
                 transform.position = Vector3.Lerp(Stage1Position, Stage2Position, (float) i / frameCount);
-                yield return new WaitForSeconds(0.017f);
+                yield return new WaitForSeconds(Util.FrameWaitAmount);
             }
         }
     }

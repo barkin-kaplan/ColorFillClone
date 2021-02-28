@@ -364,7 +364,6 @@ namespace ColorFill.game.level
 
         void ProceedNextStage()
         {
-            GameCamera.Instance.AdjustStage2();
             _player.ProceedToNextStage();
         }
         
@@ -380,7 +379,12 @@ namespace ColorFill.game.level
                 }
             }
         }
-        
+
+        public void PlayerAtProceedingStage(int x, int y)
+        {
+            var fullFill = _gameObjectManager.GetObject(GameObjectType.FullFill,activeStageContainer.transform);
+            fullFill.transform.localPosition = new Vector3(x, y, 0);
+        }
     }
     
     
