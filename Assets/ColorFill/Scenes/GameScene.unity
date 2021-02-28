@@ -556,6 +556,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameCamera
       objectReference: {fileID: 0}
+    - target: {fileID: 7944857251932940702, guid: 76bdb9f865378a84b89562320ed122e6,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.7075472
+      objectReference: {fileID: 0}
+    - target: {fileID: 7944857251932940702, guid: 76bdb9f865378a84b89562320ed122e6,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.4566794
+      objectReference: {fileID: 0}
+    - target: {fileID: 7944857251932940702, guid: 76bdb9f865378a84b89562320ed122e6,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.29703632
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 76bdb9f865378a84b89562320ed122e6, type: 3}
 --- !u!20 &1126969053 stripped
@@ -714,6 +729,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerStatusUI
       objectReference: {fileID: 0}
+    - target: {fileID: 7245866590367217241, guid: d257c3874fa13ed4ab173b7e932ef785,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7245866590367217242, guid: d257c3874fa13ed4ab173b7e932ef785,
         type: 3}
       propertyPath: m_Pivot.x
@@ -802,7 +822,7 @@ PrefabInstance:
     - target: {fileID: 7245866590367217242, guid: d257c3874fa13ed4ab173b7e932ef785,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 199.59
       objectReference: {fileID: 0}
     - target: {fileID: 7245866590367217242, guid: d257c3874fa13ed4ab173b7e932ef785,
         type: 3}
@@ -1018,6 +1038,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 8754250688514359828, guid: ced0b2d177fddb94a85e677c84796bc7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ced0b2d177fddb94a85e677c84796bc7, type: 3}
