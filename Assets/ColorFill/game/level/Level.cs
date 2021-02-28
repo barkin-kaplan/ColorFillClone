@@ -96,7 +96,6 @@ namespace ColorFill.game.level
                 }
             }
             _halfFills.Clear();
-            _neighbourVoid.Clear();
         }
 
         void LoadStage(int levelNum,int stage)
@@ -189,8 +188,6 @@ namespace ColorFill.game.level
 
         //half fill trail list
         private List<Point> _halfFills = new List<Point>();
-        //void point that are neighbouring to trail
-        private List<Point> _neighbourVoid = new List<Point>();
         private Point _lastPosition;
         public void PlayerAt(int x,int y,PlayerStatus playerStatus)
         {
@@ -215,10 +212,6 @@ namespace ColorFill.game.level
                             {
                                 continue;
                             }
-                            if (neighbour.type == GameObjectType.Void || neighbour.type == GameObjectType.Gem)
-                            {
-                                _neighbourVoid.Add(new Point(neighbour.x,neighbour.y));
-                            }
                         }
                     }
                     else if (objType == GameObjectType.FullFill)
@@ -228,53 +221,9 @@ namespace ColorFill.game.level
                         {
                             break;
                         }
-
-                        foreach (var neighbourVoidCell in _neighbourVoid)
-                        {
-                            var neighbourItem = _liveMatrix.GetItem(neighbourVoidCell);
-                            if (neighbourItem.type != GameObjectType.Void && neighbourItem.type != GameObjectType.Gem)
-                            {
-                                continue;
-                            }
-                            bool shouldAdd = true;
-                            foreach (var region in voidRegions)
-                            {
-                                if (region.Contains(neighbourVoidCell))
-                                {
-                                    shouldAdd = false;
-                                    break;
-                                }
-                            }
-
-                            if (shouldAdd)
-                            {
-                                voidRegions.Add(_liveMatrix.GetSimilarRegion(neighbourVoidCell.x,neighbourVoidCell.y));  
-                                _liveMatrix.ResetIsConsidered();
-                            }
-                        }
-                        // voidRegions.AddRange(GetNeighbouringVoidRegions(x, y));
-                        //reverse sorted
-                        voidRegions.Sort((o1,o2) => o2.Count.CompareTo(o1.Count));
-                        
-                        if (voidRegions.Count > 0)
-                        {
-                            //if there is only one region and it is circled with half fil, then fill it
-                            if (voidRegions.Count == 1)
-                            {
-                                FillVoidRegion(voidRegions[0]);
-                            }
-                            else
-                            {
-                                //fill all the regions but the maximum
-                                for (int i = 1; i < voidRegions.Count; i++)
-                                {
-                                    FillVoidRegion(voidRegions[i]);
-                                }
-                            }
-                            
-                        }
-                        _neighbourVoid.Clear();
                         FillHalfFills();
+                        voidRegions = GetVoidRegions();
+                        FillEligibleRegions(voidRegions);
                     }
                     else if (objType == GameObjectType.HalfFill)
                     {
@@ -287,28 +236,9 @@ namespace ColorFill.game.level
                     _halfFills.Add(new Point(x,y));
                     FillHalfFills();
 
-
-                    voidRegions = GetNeighbouringVoidRegions(x, y);
-
-                    if (voidRegions.Count > 1)
-                    {
-                        var region1 = voidRegions[0];
-                        var region2 = voidRegions[1];
-                        if (!Util.HaveInstersection(region1, region2))
-                        {
-                            HashSet<Point> toBeFilled;
-                            if (region1.Count < region2.Count)
-                            {
-                                toBeFilled = region1;
-                            }
-                            else
-                            {
-                                toBeFilled = region2;
-                            }
-                            FillVoidRegion(toBeFilled);
-                        }
-                    }
-                    _neighbourVoid.Clear();
+                    //get void regions around hit point when player hits a wall
+                    voidRegions = GetVoidRegions();
+                    FillEligibleRegions(voidRegions);
                     break;
             }
 
@@ -331,37 +261,93 @@ namespace ColorFill.game.level
             _halfFills.Clear();
         }
 
-        List<HashSet<Point>> GetNeighbouringVoidRegions(int x,int y)
-        {
-            var neighbours = _liveMatrix.GetPlusShape(x, y);
-            List<HashSet<Point>> voidRegions = new List<HashSet<Point>>();
-            foreach (var neighbour in neighbours)
-            {
-                if (neighbour != null)
-                {
-                    bool shouldAdd = true;
-                    foreach (var region in voidRegions)
-                    {
-                        if (region.Contains(new Point(neighbour.x,neighbour.y)))
-                        {
-                            shouldAdd = false;
-                            break;
-                        }
-                    }
+        
 
-                    if (shouldAdd)
+        List<HashSet<Point>> GetVoidRegions()
+        {
+            List<HashSet<Point>> voidRegions = new List<HashSet<Point>>();
+            for (int x = 0; x < _liveMatrix._width; x++)
+            {
+                for (int y = 0; y < _liveMatrix._height; y++)
+                {
+                    var item = _liveMatrix.GetItem(x, y);
+                    var type = item.type;
+                    if (type == GameObjectType.Void || type == GameObjectType.Gem)
                     {
-                        if (neighbour.type == GameObjectType.Void || neighbour.type == GameObjectType.Gem)
+                        bool shouldGetVoidRegion = true;
+                        foreach (var region in voidRegions)
                         {
-                            var region = _liveMatrix.GetSimilarRegion(neighbour.x, neighbour.y);
-                            voidRegions.Add(region);
-                            _liveMatrix.ResetIsConsidered();
+                            if (region.Contains(new Point(item.x, item.y)))
+                            {
+                                shouldGetVoidRegion = false;
+                            }
+                        }
+
+                        if (shouldGetVoidRegion)
+                        {
+                            var voidRegion = _liveMatrix.GetSimilarRegion(item.x, item.y);
+                            voidRegions.Add(voidRegion);
                         }
                     }
                 }
             }
 
             return voidRegions;
+        }
+
+        void FillEligibleRegions(List<HashSet<Point>> voidRegions)
+        {
+            for (int i = voidRegions.Count - 1;i > -1 ;i--)
+            {
+                if (CheckIfRegionEligible(voidRegions[i]))
+                {
+                    FillVoidRegion(voidRegions[i]);
+                    voidRegions.RemoveAt(i);
+                }
+
+            }
+            //if some are not eligible and if there are multiple remaining void regions
+            if (voidRegions.Count > 1)
+            {
+                //reverse sort regions
+                voidRegions.Sort((o1,o2) => o2.Count.CompareTo(o1.Count));
+                //fill the regions that do not have maximum area
+                for(int i = 1;i < voidRegions.Count; i++)
+                {
+                    FillVoidRegion(voidRegions[i]);    
+                }
+            }
+        }
+
+        bool CheckIfRegionEligible(HashSet<Point> voidRegion)
+        {
+            //if region is small enough
+            if (voidRegion.Count < TotalVoidCounts[activeStageIndex] / (float) 10)
+            {
+                return true;
+            }
+            //check if region is enclosed by half fills or full fills or cells are at the edge of level 
+            foreach (var point in voidRegion)
+            {
+                var neighbours = _liveMatrix.GetPlusShape(point);
+                foreach (var neighbour in neighbours)
+                {
+                    if (neighbour == null)
+                    {
+                        return false;
+                    }
+                    if(voidRegion.Contains(new Point(neighbour.x,neighbour.y)))
+                    {
+                        continue;
+                    }
+                    if (neighbour != null && neighbour.type != GameObjectType.FullFill && neighbour.type != GameObjectType.HalfFill)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         void CreateItem(int x,int y,GameObjectType type)

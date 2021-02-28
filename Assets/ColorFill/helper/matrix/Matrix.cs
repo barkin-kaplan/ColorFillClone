@@ -43,8 +43,15 @@ namespace ColorFill.helper.matrix
             item.y = y;
             _items[x + y * _width] = item;
         }
-        
+
         public HashSet<Point> GetSimilarRegion(int x, int y)
+        {
+            var region = GetSimilarRegionRecursive(x, y);
+            ResetIsConsidered();
+            return region;
+        }
+        
+        private HashSet<Point> GetSimilarRegionRecursive(int x, int y)
         {
             var currentCell = GetItem(x, y);
             currentCell.isConsidered = true;
@@ -56,7 +63,7 @@ namespace ColorFill.helper.matrix
                 var rightCell = GetItem(x + 1, y);
                 if (!rightCell.isConsidered && rightCell.Equals(currentCell))
                 {
-                    foreach (var point in GetSimilarRegion(x + 1, y))
+                    foreach (var point in GetSimilarRegionRecursive(x + 1, y))
                     {
                         cells.Add(point);
                     }
@@ -68,7 +75,7 @@ namespace ColorFill.helper.matrix
                 var leftCell = GetItem(x - 1, y);
                 if (!leftCell.isConsidered && leftCell.Equals(currentCell))
                 {
-                    foreach (var point in GetSimilarRegion(x - 1, y))
+                    foreach (var point in GetSimilarRegionRecursive(x - 1, y))
                     {
                         cells.Add(point);
                     }
@@ -80,7 +87,7 @@ namespace ColorFill.helper.matrix
                 var topCell = GetItem(x, y + 1);
                 if (!topCell.isConsidered && topCell.Equals(currentCell))
                 {
-                    foreach (var point in GetSimilarRegion(x, y + 1))
+                    foreach (var point in GetSimilarRegionRecursive(x, y + 1))
                     {
                         cells.Add(point);
                     }
@@ -92,7 +99,7 @@ namespace ColorFill.helper.matrix
                 var downCell = GetItem(x, y - 1);
                 if (!downCell.isConsidered && downCell.Equals(currentCell))
                 {
-                    foreach (var point in GetSimilarRegion(x, y - 1))
+                    foreach (var point in GetSimilarRegionRecursive(x, y - 1))
                     {
                         cells.Add(point);
                     }
@@ -120,6 +127,11 @@ namespace ColorFill.helper.matrix
             var rightCell = GetItem(x + 1, y);
             var downCell = GetItem(x, y - 1);
             return new []{leftCell, upperCell, rightCell, downCell};
+        }
+
+        public T[] GetPlusShape(Point p)
+        {
+            return GetPlusShape(p.x, p.y);
         }
 
     }
