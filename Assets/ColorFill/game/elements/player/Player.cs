@@ -34,6 +34,7 @@ namespace ColorFill.game.elements
         private Vector3 _velocity = Vector3.zero;
         private bool isInsideFill;
         private const float turnThreshold = 0.07f;
+        private bool IsProceedingToNextStage;
 
         
 
@@ -144,6 +145,10 @@ namespace ColorFill.game.elements
 
         private void OnTriggerEnter(Collider other)
         {
+            if (IsProceedingToNextStage)
+            {
+                return;
+            }
             var otherObj = other.gameObject;
             if (otherObj.CompareTag("Wall"))
             {
@@ -177,6 +182,11 @@ namespace ColorFill.game.elements
         public void InitializeData()
         {
             SetLastCell();
+        }
+
+        public void ProceedToNextStage()
+        {
+            IsProceedingToNextStage = true;
         }
     }
 }

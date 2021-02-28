@@ -59,25 +59,23 @@ namespace ColorFill.game.level
 
         private Player _player;
 
+        private int _currentLevel;
+
         private void Awake()
         {
             _gameObjectManager = GameObjectManager.Instance;
             Instance = this;
         }
 
-        void InstantiateLiveMatrixFirstStage()
-        {
-            _liveMatrix = new Matrix<LevelMatrixItem>();
-            _liveMatrix.SetDimensions(_stageMatrices[0]._width,_stageMatrices[0]._height);
-        }
+        
 
 
         public void LoadLevel(int levelNum)
         {
+            _currentLevel = levelNum;
             ResetLevel();
-            LoadStage(levelNum, 1);
-            LoadStage(levelNum, 2);
-            InstantiateObjects();
+            LoadStage(levelNum, 0);
+            InstantiateObjects(0);
             AdjustCameraFirstStage();
             InstantiatePlayer();
         }
@@ -100,13 +98,13 @@ namespace ColorFill.game.level
 
         void LoadStage(int levelNum,int stage)
         {
-            var levelName = $"level_{levelNum}_{stage}";
+            var levelName = $"level_{levelNum}_{stage + 1}";
             var textAsset = Resources.Load(levelName) as TextAsset;
             var text = textAsset.text;
             var model = JsonConvert.DeserializeObject<LevelJsonModel>(text);
             var matrix = new Matrix<LevelMatrixItem>();
             matrix.SetDimensions(model.width,model.height);
-            var data = model.layers[0].data;
+            var data = model.layers[stage].data;
             //start is top left, array first scans first row then goes to second row and so on
             for (int i = 0; i < data.Length; i++)
             {
@@ -116,22 +114,23 @@ namespace ColorFill.game.level
                 matrix.SetItem(x, y, new LevelMatrixItem(gameObjectType));
             }
 
-            _stageMatrices[stage - 1] = matrix;
-            stageModels[stage - 1] = model;
+            _stageMatrices[stage] = matrix;
+            stageModels[stage] = model;
         }
 
-        void InstantiateObjects()
+        void InstantiateObjects(int stageNum)
         {
-            InstantiateLiveMatrixFirstStage();
-            InstantiateFirstStage();
+            InstantiateStage(stageNum);
         }
 
-        void InstantiateFirstStage()
+        void InstantiateStage(int stageNum)
         {
-            activeStageIndex = 0;
-            var firstStageMatrix = _stageMatrices[0];
-            var jsonModel = stageModels[0];
-            var properties = jsonModel.layers[0].properties;
+            _liveMatrix = new Matrix<LevelMatrixItem>();
+            _liveMatrix.SetDimensions(_stageMatrices[stageNum]._width,_stageMatrices[stageNum]._height);
+            activeStageIndex = stageNum;
+            var tiledStageMatrix = _stageMatrices[stageNum];
+            var jsonModel = stageModels[stageNum];
+            var properties = jsonModel.layers[stageNum].properties;
             float verticalMoveAmount = 0;
             foreach (var property in properties)
             {
@@ -142,11 +141,11 @@ namespace ColorFill.game.level
             }
             
             //instantiate level objects
-            for (int x = 0; x < firstStageMatrix._width; x++)
+            for (int x = 0; x < tiledStageMatrix._width; x++)
             {
-                for (int y = 0; y < firstStageMatrix._height; y++)
+                for (int y = 0; y < tiledStageMatrix._height; y++)
                 {
-                    var levelItem = firstStageMatrix.GetItem(x, y);
+                    var levelItem = tiledStageMatrix.GetItem(x, y);
                     var gameObjectType = levelItem.type;
                     if (gameObjectType == GameObjectType.Void)
                     {
@@ -355,9 +354,21 @@ namespace ColorFill.game.level
             _liveMatrix.SetItem(x,y,new LevelMatrixItem(type));
             var item = _gameObjectManager.GetObject(type,activeStageContainer.transform);
             item.transform.localPosition = new Vector3(x, y, 0);
-            GameContext.Instance.SetStageRatio(activeStageIndex,_gameObjectManager.FullFillCount / (float)TotalVoidCounts[activeStageIndex]);    
-            
+            var stageRatio = _gameObjectManager.FullFillCount / (float) TotalVoidCounts[activeStageIndex];
+            GameContext.Instance.SetStageRatio(activeStageIndex,stageRatio);
+            if (stageRatio >= 1f)
+            {
+                ProceedNextStage();
+            }
         }
+
+        void ProceedNextStage()
+        {
+            GameCamera.Instance.AdjustStage2();
+            _player.ProceedToNextStage();
+        }
+        
+        
 
         void FillVoidRegion(HashSet<Point> region)
         {
