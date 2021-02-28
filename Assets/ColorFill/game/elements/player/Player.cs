@@ -105,11 +105,6 @@ namespace ColorFill.game.elements
 
             if (CheckMoveNewCell())
             {
-                if (_lastCell.x == _lastCell.y)
-                {
-                    Debug.Log($"Player Added {_lastCell}");
-                }
-                _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,PlayerStatus.Moving);
                 SetLastCell();
             }
         }
@@ -165,6 +160,7 @@ namespace ColorFill.game.elements
         void SetLastCell()
         {
             _lastCell = new Vector3((int) (transform.localPosition.x + 0.5f), (int) (transform.localPosition.y + 0.5f), 0f);
+            _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,PlayerStatus.Moving);
         }
 
         void ResetVelocity()

@@ -65,7 +65,6 @@ namespace ColorFill.game.level
             {
                 if (trans.name != "Static" && trans.name != "Level" && trans.name != "Floor")
                 {
-                    Debug.Log(trans.name);
                     _gameObjectManager.DestroyObject(trans.gameObject);    
                 }
             }
@@ -159,28 +158,90 @@ namespace ColorFill.game.level
             player.GetComponent<Player>().InitializeData();
         }
 
+        //half fill trail list
         private List<Point> _halfFills = new List<Point>();
+        //void point that are neighbouring to trail
+        private List<Point> _neighbourVoid = new List<Point>();
+        private Point _lastPosition;
         public void PlayerAt(int x,int y,PlayerStatus playerStatus)
         {
             x = Mathf.Clamp(x, 0, _liveMatrix._width - 1);
             y = Mathf.Clamp(y, 0, _liveMatrix._height - 1);
-            if (x == y)
-            {
-                
-            }
             var item = _liveMatrix.GetItem(x, y);
             var objType = item.type;
+            List<HashSet<Point>> voidRegions = new List<HashSet<Point>>();
             switch (playerStatus)
             {
                 case PlayerStatus.Moving:
-                    if (objType == GameObjectType.Void)
+                    if (objType == GameObjectType.Void || objType == GameObjectType.Gem)
                     {
                         var halfFill = _gameObjectManager.GetObject(GameObjectType.HalfFill, firstStageContainer.transform);
                         halfFill.transform.localPosition = new Vector3(x, y, 0);
                         _liveMatrix.SetItem(x,y,new LevelMatrixItem(GameObjectType.HalfFill));
                         _halfFills.Add(new Point(x,y));
+                        var neighbours = _liveMatrix.GetPlusShape(x, y);
+                        foreach (var neighbour in neighbours)
+                        {
+                            if (neighbour == null)
+                            {
+                                continue;
+                            }
+                            if (neighbour.type == GameObjectType.Void || neighbour.type == GameObjectType.Gem)
+                            {
+                                _neighbourVoid.Add(new Point(neighbour.x,neighbour.y));
+                            }
+                        }
                     }
+                    else if (objType == GameObjectType.FullFill)
+                    {
+                        var lastItem = _liveMatrix.GetItem(_lastPosition.x, _lastPosition.y);
+                        if (lastItem.type == GameObjectType.FullFill)
+                        {
+                            break;
+                        }
 
+                        foreach (var neighbourVoidCell in _neighbourVoid)
+                        {
+                            bool shouldAdd = true;
+                            foreach (var region in voidRegions)
+                            {
+                                if (region.Contains(neighbourVoidCell))
+                                {
+                                    shouldAdd = false;
+                                    break;
+                                }
+                            }
+
+                            if (shouldAdd)
+                            {
+                                voidRegions.Add(_liveMatrix.GetSimilarRegion(neighbourVoidCell.x,neighbourVoidCell.y));  
+                                _liveMatrix.ResetIsConsidered();
+                            }
+                        }
+                        voidRegions.AddRange(GetNeighbouringVoidRegions(x, y));
+                        //reverse sorted
+                        voidRegions.Sort((o1,o2) => o2.Count.CompareTo(o1.Count));
+                        
+                        if (voidRegions.Count > 0)
+                        {
+                            //if there is only one region and it is circled with half fil, then fill it
+                            if (voidRegions.Count == 1)
+                            {
+                                FillVoidRegion(voidRegions[0]);
+                            }
+                            else
+                            {
+                                //fill all the regions but the maximum
+                                for (int i = 1; i < voidRegions.Count; i++)
+                                {
+                                    FillVoidRegion(voidRegions[i]);
+                                }
+                            }
+                            
+                        }
+                        _neighbourVoid.Clear();
+                    }
+                    
                     break;
                 case PlayerStatus.Stopped:
                     _halfFills.Add(new Point(x,y));
@@ -196,21 +257,9 @@ namespace ColorFill.game.level
                         CreateItem(position.x, position.y, GameObjectType.FullFill);
                     }
                     _halfFills.Clear();
-                    
-                    var neighbours = _liveMatrix.GetPlusShape(x, y);
-                    List<HashSet<Point>> voidRegions = new List<HashSet<Point>>();
-                    foreach (var neighbour in neighbours)
-                    {
-                        if (neighbour != null)
-                        {
-                            if (neighbour.type == GameObjectType.Void || neighbour.type == GameObjectType.Gem)
-                            {
-                                var region = _liveMatrix.GetSimilarRegion(neighbour.x, neighbour.y);
-                                voidRegions.Add(region);
-                                _liveMatrix.ResetIsConsidered();
-                            }
-                        }
-                    }
+
+
+                    voidRegions = GetNeighbouringVoidRegions(x, y);
 
                     if (voidRegions.Count > 1)
                     {
@@ -230,9 +279,44 @@ namespace ColorFill.game.level
                             FillVoidRegion(toBeFilled);
                         }
                     }
-
+                    _neighbourVoid.Clear();
                     break;
             }
+
+            _lastPosition = new Point(x, y);
+        }
+
+        List<HashSet<Point>> GetNeighbouringVoidRegions(int x,int y)
+        {
+            var neighbours = _liveMatrix.GetPlusShape(x, y);
+            List<HashSet<Point>> voidRegions = new List<HashSet<Point>>();
+            foreach (var neighbour in neighbours)
+            {
+                if (neighbour != null)
+                {
+                    bool shouldAdd = true;
+                    foreach (var region in voidRegions)
+                    {
+                        if (region.Contains(new Point(neighbour.x,neighbour.y)))
+                        {
+                            shouldAdd = false;
+                            break;
+                        }
+                    }
+
+                    if (shouldAdd)
+                    {
+                        if (neighbour.type == GameObjectType.Void || neighbour.type == GameObjectType.Gem)
+                        {
+                            var region = _liveMatrix.GetSimilarRegion(neighbour.x, neighbour.y);
+                            voidRegions.Add(region);
+                            _liveMatrix.ResetIsConsidered();
+                        }
+                    }
+                }
+            }
+
+            return voidRegions;
         }
 
         void CreateItem(int x,int y,GameObjectType type)
@@ -246,7 +330,10 @@ namespace ColorFill.game.level
         {
             foreach (var point in region)
             {
-                CreateItem(point.x,point.y,GameObjectType.FullFill);
+                if (_liveMatrix.GetItem(point.x, point.y).type != GameObjectType.FullFill)
+                {
+                    CreateItem(point.x,point.y,GameObjectType.FullFill);    
+                }
             }
         }
         
