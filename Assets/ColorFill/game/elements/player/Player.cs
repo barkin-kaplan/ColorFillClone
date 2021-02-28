@@ -206,8 +206,7 @@ namespace ColorFill.game.elements
 
         public void ProceedToNextStage()
         {
-            _currentMoveDirection = Vector2.zero;
-            _velocity = Vector3.zero;
+            ResetVelocity();
             IsProceedingToNextStage = true;
             StartCoroutine(ProceedGoToCenterCoRoutine());
         }
