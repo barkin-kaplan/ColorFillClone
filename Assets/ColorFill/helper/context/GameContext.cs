@@ -60,6 +60,11 @@ namespace ColorFill.helper.context
             _playerStatusUI.SetGemCount(_playerData.GemCount);
             _playerStatusUI.SetCurrentLevel(_playerData.CurrentLevel);
             _playerStatusUI.SetNextLevel(_playerData.CurrentLevel + 1);
+            ResetStageRatio();
+        }
+
+        void ResetStageRatio()
+        {
             SetStageRatio(0,0);
             SetStageRatio(1,0);
         }
@@ -80,6 +85,7 @@ namespace ColorFill.helper.context
             } 
             _playerStatusUI.SetCurrentLevel(_playerData.CurrentLevel);
             _playerStatusUI.SetNextLevel((_playerData.CurrentLevel + 1) % (levelCount + 1));
+            ResetStageRatio();
             LoadNextLevel();
         }
 

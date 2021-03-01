@@ -40,6 +40,7 @@ namespace ColorFill.game.elements
         private const float turnThreshold = 0.07f;
         private bool IsProceedingToNextStage;
         private bool isInsideFullFill;
+        public static Player Instance { get; private set; }
         
 
         
@@ -47,6 +48,12 @@ namespace ColorFill.game.elements
 
         void Awake()
         {
+            if (!Util.DontDestroyOnLoad<Player>(gameObject))
+            {
+                return;
+            }
+
+            Instance = this;
             _swipeable = GetComponent<Swipeable>();
             SetSwipeEvent();
             _level = Level.Instance;
@@ -108,7 +115,6 @@ namespace ColorFill.game.elements
                 if (CheckMoveNewCell())
                 {
                     SetLastCell();
-                    _level.PlayerAtProceedingStage((int)_lastCell.x,(int)_lastCell.y);
                 }
             }
             else
@@ -192,8 +198,7 @@ namespace ColorFill.game.elements
             }
             else if (otherObj.CompareTag("Deadly") )
             {
-                Destroy(gameObject);
-                GameContext.Instance.ShowGameOver();
+                GameOver();
             }
             else if (otherObj.CompareTag("Gem"))
             {
@@ -201,10 +206,24 @@ namespace ColorFill.game.elements
             }
         }
 
+        public void GameOver()
+        {
+            Destroy(gameObject);
+            GameContext.Instance.ShowGameOver();
+        }
+
         void SetLastCell()
         {
             _lastCell = new Vector3((int) (transform.localPosition.x + 0.5f), (int) (transform.localPosition.y + 0.5f), 0f);
-            PlayerAt(PlayerStatus.Moving);
+            if (IsProceedingToNextStage)
+            {
+                
+                _level.PlayerAtProceedingStage((int)_lastCell.x,(int)_lastCell.y);
+            }
+            else
+            {
+                PlayerAt(PlayerStatus.Moving);    
+            }
         }
 
         void PlayerAt(PlayerStatus status)
@@ -261,6 +280,11 @@ namespace ColorFill.game.elements
 
             IsProceedingToNextStage = false;
             onFinish();
+        }
+
+        private void OnDestroy()
+        {
+            
         }
     }
 }
