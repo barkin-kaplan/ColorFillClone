@@ -156,6 +156,11 @@ namespace ColorFill.game.level
             InstantiatePlayer();
             GameContext.Instance.SetStageRatio(activeStageIndex,0);
         }
+
+        public void Revive()
+        {
+            _activeStage.Revive();
+        }
     }
     
     

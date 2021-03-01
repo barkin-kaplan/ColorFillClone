@@ -44,6 +44,11 @@ namespace ColorFill.helper.matrix
             _items[x + y * _width] = item;
         }
 
+        public void SetItem(Point point,T item)
+        {
+            SetItem(point.x, point.y, item);
+        }
+
         public HashSet<Point> GetSimilarRegion(int x, int y)
         {
             var region = GetSimilarRegionRecursive(x, y);

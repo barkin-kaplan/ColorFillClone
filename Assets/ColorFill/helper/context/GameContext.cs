@@ -104,5 +104,11 @@ namespace ColorFill.helper.context
         {
             _playerStatusUI.SetStageRatio(stage,ratio);
         }
+
+        public void RevivePlayer()
+        {
+            SetGem(_playerData.GemCount - 5);
+            Level.Instance.Revive();
+        }
     }
 }

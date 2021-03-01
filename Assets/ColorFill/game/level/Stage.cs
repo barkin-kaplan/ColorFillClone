@@ -27,6 +27,13 @@ namespace ColorFill.game.level
         private Action OnStageFinishCallback;
         private int _fullFillCount;
         private bool stageFinished;
+        
+        //half fill trail list
+        private List<Point> _halfFills = new List<Point>();
+        private Point _lastPosition;
+        private List<ReviveItemMemory> _halfFillsCreatedSinceLastStop = new List<ReviveItemMemory>();
+        //this position is a local position
+        private Vector3 _lastStopPosition;
 
         public Stage(Action onStageFinishCallback)
         {
@@ -36,14 +43,16 @@ namespace ColorFill.game.level
 
         public void InstantiateStageData(string levelName,GameObject stageContainer)
         {
+            //set container GameObject
+            _stageContainer = stageContainer;
+            
             //reset fullFillCount
             _fullFillCount = 0;
             //get stage num from file name
             _stageNum = Util.ParseInt(levelName[levelName.Length - 1]) - 1;
             //set maximum vaoid coun accordingly. void count will be decreased while instantiating objects
             _totalVoidCount = _stageNum == 0 ? 11 * 11 : 17 * 25;
-            //set container GameObject
-            _stageContainer = stageContainer;
+            
             //load text asset
             var textAsset = Resources.Load(levelName) as TextAsset;
             var text = textAsset.text;
@@ -64,6 +73,7 @@ namespace ColorFill.game.level
 
             _levelMatrix = matrix;
             _liveMatrix = new Matrix<LevelMatrixItem>();
+            _lastStopPosition = new Vector3(_levelMatrix._width / 2, 0, 0);
         }
         
         public void InstantiateObjects()
@@ -136,16 +146,31 @@ namespace ColorFill.game.level
             _halfFills.Clear();
             //reset fullFillCount
             _fullFillCount = 0;
+            _lastStopPosition = new Vector3(_levelMatrix._width / 2, 0, 0);
         }
         
         public void CreateItem(int x,int y,GameObjectType type)
         {
+            
             if (type == GameObjectType.FullFill)
             {
                 _fullFillCount++;
             }
-            _liveMatrix.SetItem(x,y,new LevelMatrixItem(type));
             var item = _gameObjectManager.GetObject(type,_stageContainer.transform);
+            //if type is HalfFill put it to item memory for destruction on revive
+            if (type == GameObjectType.HalfFill)
+            {
+                //put half fills to memory
+                var prevObjectType = _liveMatrix.GetItem(x, y).type;
+                _halfFillsCreatedSinceLastStop.Add(new ReviveItemMemory()
+                {
+                    actualGameObject = item,
+                    point = new Point(x,y),
+                    prevGameObjectType = prevObjectType
+                });    
+            }
+            
+            _liveMatrix.SetItem(x,y,new LevelMatrixItem(type));
             item.transform.localPosition = new Vector3(x, y, 0);
             var stageRatio = _fullFillCount / (float) _totalVoidCount;
             
@@ -158,9 +183,7 @@ namespace ColorFill.game.level
             
         }
         
-        //half fill trail list
-        private List<Point> _halfFills = new List<Point>();
-        private Point _lastPosition;
+        
         /// <summary>
         /// update live matrix based on player's current cell
         /// returns objecttype at current cell
@@ -181,8 +204,7 @@ namespace ColorFill.game.level
                 case PlayerStatus.Moving:
                     if (objType == GameObjectType.Void || objType == GameObjectType.Gem)
                     {
-                        var halfFill = _gameObjectManager.GetObject(GameObjectType.HalfFill, _stageContainer.transform);
-                        halfFill.transform.localPosition = new Vector3(x, y, 0);
+                        CreateItem(x, y, GameObjectType.HalfFill);
                         _liveMatrix.SetItem(x,y,new LevelMatrixItem(GameObjectType.HalfFill));
                         _halfFills.Add(new Point(x,y));
                         var neighbours = _liveMatrix.GetPlusShape(x, y);
@@ -212,6 +234,8 @@ namespace ColorFill.game.level
                     
                     break;
                 case PlayerStatus.Stopped:
+                    _halfFillsCreatedSinceLastStop.Clear();
+                    _lastStopPosition = new Vector3(x, y, 0);
                     _halfFills.Add(new Point(x,y));
                     FillHalfFills();
 
@@ -344,6 +368,26 @@ namespace ColorFill.game.level
         public void SetPlayerChild()
         {
             Player.Instance.transform.SetParent(_stageContainer.transform);
+        }
+
+        public void Revive()
+        {
+            foreach (var reviveItemMemory in _halfFillsCreatedSinceLastStop)
+            {
+                var type = reviveItemMemory.prevGameObjectType;
+                var point = reviveItemMemory.point;
+                Object.Destroy(reviveItemMemory.actualGameObject);
+                _liveMatrix.SetItem(point,new LevelMatrixItem(type));
+                if (type == GameObjectType.Gem)
+                {
+                    CreateItem(point.x,point.y,type);
+                }
+            }
+            
+            _halfFills.Clear();
+
+            _gameObjectManager.GetObject(GameObjectType.Player, _stageContainer.transform.position + _lastStopPosition);
+            SetPlayerChild();
         }
     }
 }

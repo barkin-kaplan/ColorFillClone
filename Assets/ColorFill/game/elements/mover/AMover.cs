@@ -20,7 +20,12 @@ namespace ColorFill.game.elements.mover
             var otherObj = other.gameObject;
             if (otherObj.CompareTag("HalfFill"))
             {
-                Destroy(FindObjectOfType<Player>().gameObject);
+                var player = FindObjectOfType<Player>();
+                if (player != null)
+                {
+                    Destroy(player.gameObject);    
+                }
+                
                 GameContext.Instance.ShowGameOver();
             }
         }
