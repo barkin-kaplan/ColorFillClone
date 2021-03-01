@@ -9,6 +9,8 @@ using ColorFill.game.elements.mover.vertical_mover;
 using ColorFill.game.elements.wall;
 using ColorFill.helper;
 using ColorFill.helper.context;
+using ColorFill.helper.data;
+using ColorFill.helper.DI;
 using ColorFill.helper.level;
 using ColorFill.helper.matrix;
 using ColorFill.helper.object_manager;
@@ -66,6 +68,7 @@ namespace ColorFill.game.level
 
         void LoadStage(int levelNum,int stageNum)
         {
+            lastGemCount = GameContext.Instance.GetGemCount();
             Stage stage;
             if (stageNum == 0)
             {
@@ -143,8 +146,11 @@ namespace ColorFill.game.level
             fullFill.transform.localPosition = new Vector3(x, y, 0);
         }
 
+        private int lastGemCount;
+
         public void RestartStage()
         {
+            GameContext.Instance.SetGem(lastGemCount);
             _activeStage.ResetStage();
             _activeStage.InstantiateObjects();
             InstantiatePlayer();

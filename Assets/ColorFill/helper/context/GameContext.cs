@@ -75,6 +75,17 @@ namespace ColorFill.helper.context
             _playerStatusUI.SetGemCount(_playerData.GemCount);
         }
 
+        public void SetGem(int count)
+        {
+            _playerData.GemCount = count;
+            _playerStatusUI.SetGemCount(_playerData.GemCount);
+        }
+
+        public int GetGemCount()
+        {
+            return _playerData.GemCount;
+        }
+
         public void IterateLevel()
         {
             _playerData.CurrentLevel += 1;
