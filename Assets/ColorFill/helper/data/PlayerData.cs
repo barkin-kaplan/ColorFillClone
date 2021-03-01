@@ -3,20 +3,41 @@ namespace ColorFill.helper.data
 {
     public class PlayerData
     {
-        public int CurrentLevel { get; set; }
-        public int GemCount { get; set; }
+        private int currentLevel;
+
+        public int CurrentLevel
+        {
+            get => currentLevel;
+            set
+            {
+                currentLevel = value;
+                Save();
+            }
+        }
+
+        private int gemCount;
+
+        public int GemCount
+        {
+            get => gemCount;
+            set
+            {
+                gemCount = value;
+                Save();
+            }
+        }
 
 
         public PlayerData()
         {
-            CurrentLevel = PlayerPrefs.GetInt(nameof(CurrentLevel),1);
-            GemCount = PlayerPrefs.GetInt(nameof(GemCount), 0);
+            currentLevel = PlayerPrefs.GetInt(nameof(currentLevel),1);
+            gemCount = PlayerPrefs.GetInt(nameof(gemCount), 0);
         }
 
         public void Save()
         {
-            PlayerPrefs.SetInt(nameof(CurrentLevel),CurrentLevel);
-            PlayerPrefs.SetInt(nameof(GemCount),GemCount);
+            PlayerPrefs.SetInt(nameof(currentLevel),currentLevel);
+            PlayerPrefs.SetInt(nameof(gemCount),gemCount);
         }
     }
 }

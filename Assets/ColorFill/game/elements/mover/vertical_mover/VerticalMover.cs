@@ -6,7 +6,7 @@ namespace ColorFill.game.elements.mover.vertical_mover
 {
     public class VerticalMover : AMover
     {
-        
+        protected Vector3 speed = Vector3.down * 1.8f;
         private float bottomY;
         private float topY;
 

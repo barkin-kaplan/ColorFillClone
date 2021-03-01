@@ -46,10 +46,6 @@ namespace ColorFill.helper.object_manager
 
         public void DestroyObject(GameObject obj)
         {
-            if (obj.CompareTag("FullFill"))
-            {
-                FullFillCount -= 1;
-            }
             Destroy(obj);
         }
     }

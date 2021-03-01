@@ -20,8 +20,9 @@ namespace ColorFill.game.elements
         private Queue<TurnQueueItem> _turnQueue = new Queue<TurnQueueItem>();
         private Level _level;
 
-        private struct TurnQueueItem
+        private class TurnQueueItem
         {
+            public DateTime timestamp = DateTime.Now;
             public Vector2 direction;
             public Vector3 turnPosition;
             /// <summary>
@@ -135,6 +136,25 @@ namespace ColorFill.game.elements
 
         bool CheckIfEligibleForTurn()
         {
+            //check if there is an obsolete turn item
+            //this can happen from time to time most probably due to inconsistency in frequency of frame updates
+            bool canContinue = true;
+            do
+            {
+                if (_turnQueue.Count < 1)
+                {
+                    break;
+                }
+                var item = _turnQueue.First();
+                if ((DateTime.Now - item.timestamp).TotalMilliseconds > 600)
+                {
+                    _turnQueue.Dequeue();
+                }
+                else
+                {
+                    canContinue = false;
+                }
+            } while (canContinue);
             if (_turnQueue.Count > 0)
             {
                 var firstItem = _turnQueue.First();

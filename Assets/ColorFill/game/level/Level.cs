@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using ColorFill.game.camera;
 using ColorFill.game.elements;
+using ColorFill.game.elements.mover.horizontal_mover;
 using ColorFill.game.elements.mover.vertical_mover;
 using ColorFill.game.elements.wall;
 using ColorFill.helper;
@@ -81,15 +83,14 @@ namespace ColorFill.game.level
 
         void ResetLevel()
         {
-            if (activeStageContainer == null)
+            foreach (var stageContainer in stageContainers)
             {
-                return;
-            }
-            foreach (Transform trans in activeStageContainer.transform)
-            {
-                if (trans.name != "Static" && trans.name != "Level" && trans.name != "Floor")
+                foreach (Transform trans in stageContainer.transform)
                 {
-                    _gameObjectManager.DestroyObject(trans.gameObject);    
+                    if (trans.name != "Static" && trans.name != "Level" && trans.name != "Floor")
+                    {
+                        _gameObjectManager.DestroyObject(trans.gameObject);    
+                    }
                 }
             }
             _halfFills.Clear();
@@ -97,7 +98,7 @@ namespace ColorFill.game.level
 
         void LoadStage(int levelNum,int stage)
         {
-            var levelName = $"level_{levelNum}_{stage + 1}";
+            var levelName = $"level/level_{levelNum}_{stage + 1}";
             var textAsset = Resources.Load(levelName) as TextAsset;
             var text = textAsset.text;
             var model = JsonConvert.DeserializeObject<LevelJsonModel>(text);
@@ -131,11 +132,16 @@ namespace ColorFill.game.level
             var jsonModel = stageModels[stageNum];
             var properties = jsonModel.layers[0].properties;
             float verticalMoveAmount = 0;
+            float horizontalMoveAmount = 0;
             foreach (var property in properties)
             {
                 if (property.name == "vertical_move_amount")
                 {
                     verticalMoveAmount = Util.ParseFloat(property.value);
+                }
+                else if (property.name == "horizontal_move_amount")
+                {
+                    horizontalMoveAmount = Util.ParseFloat(property.value);
                 }
             }
             
@@ -157,6 +163,10 @@ namespace ColorFill.game.level
                     {
                         case GameObjectType.VerticalMover:
                             gameObj.GetComponent<VerticalMover>().SetMoveAmount(verticalMoveAmount);
+                            _liveMatrix.SetItem(x,y,new LevelMatrixItem(GameObjectType.Void));
+                            break;
+                        case GameObjectType.HorizontalMover:
+                            gameObj.GetComponent<HorizontalMover>().SetMoveAmount(horizontalMoveAmount);
                             _liveMatrix.SetItem(x,y,new LevelMatrixItem(GameObjectType.Void));
                             break;
                         case GameObjectType.Wall:
@@ -366,20 +376,47 @@ namespace ColorFill.game.level
             GameContext.Instance.SetStageRatio(activeStageIndex,stageRatio);
             if (stageRatio >= 1f)
             {
-                ProceedNextStage();
+                if (activeStageIndex == 0)
+                {
+                    ProceedNextStage();    
+                }
+                else
+                {
+                    ProceedNextLevel();   
+                }
             }
+            
         }
 
         void ProceedNextStage()
         {
-            
             _player.ProceedToNextStage(() =>
             {
                 InstantiateObjects(1);
                 _player.transform.SetParent(activeStageContainer.transform);
+                _gameObjectManager.FullFillCount = 0;
             });
             LoadStage(_currentLevel,1);
             
+        }
+
+        void ResetTotalVoidCounts()
+        {
+            TotalVoidCounts = new []{11 * 11, 17 * 25};
+        }
+
+        void ProceedNextLevel()
+        {
+            ResetTotalVoidCounts();
+            _gameObjectManager.FullFillCount = 0;
+            Util.ThreadStart(() =>
+            {
+                Thread.Sleep(1000);
+                MainContext.Instance.Invoke(() =>
+                {
+                    GameContext.Instance.IterateLevel();
+                });
+            });
         }
         
         

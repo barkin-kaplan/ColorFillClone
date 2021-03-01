@@ -6,7 +6,7 @@ namespace ColorFill.game.elements.mover
 {
     public class AMover : MonoBehaviour
     {
-        protected Vector3 speed = Vector3.down * 1.8f;
+        
         [SerializeField] private GameObject _particlePrefab;
         protected void OnDestroy()
         {

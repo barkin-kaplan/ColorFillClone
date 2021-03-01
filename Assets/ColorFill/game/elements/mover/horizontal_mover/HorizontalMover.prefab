@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 726280931681403771}
   - component: {fileID: 1114771884619738616}
   - component: {fileID: 4954828063029481319}
+  - component: {fileID: -8847400562765820506}
   m_Layer: 0
   m_Name: HorizontalMover
   m_TagString: Deadly
@@ -93,3 +94,16 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-8847400562765820506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3971694779487760007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41a7897e4f41431c851c2f27e67717c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _particlePrefab: {fileID: 0}

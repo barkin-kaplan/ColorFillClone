@@ -15,6 +15,7 @@ namespace ColorFill.helper.context
         private Canvas _canvas;
         public static GameContext Instance;
         private PlayerData _playerData;
+        private int levelCount;
         private void Awake()
         {
             if (!Util.DontDestroyOnLoad<GameContext>(gameObject))
@@ -27,8 +28,15 @@ namespace ColorFill.helper.context
             _canvas = FindObjectOfType<Canvas>();
             _playerData = DIContainer.GetSingle<PlayerData>();
             _playerStatusUI = FindObjectOfType<PlayerStatusUI>();
+            CountLevelNumber();
             LoadPlayerData();
             LoadNextLevel();
+        }
+
+        void CountLevelNumber()
+        {
+            var levelJsons = Resources.LoadAll("level");
+            levelCount = levelJsons.Length / 2;
         }
 
         public void ShowGameOver()
@@ -38,8 +46,9 @@ namespace ColorFill.helper.context
 
         public void LoadNextLevel()
         {
-            Level.Instance.LoadLevel(_playerData.CurrentLevel);
+            Level.Instance.LoadLevel(_playerData.CurrentLevel % (levelCount + 1));
         }
+
 
         public void RestartStage()
         {
@@ -59,15 +68,19 @@ namespace ColorFill.helper.context
         {
             _playerData.GemCount += count;
             _playerStatusUI.SetGemCount(_playerData.GemCount);
-            _playerData.Save();
         }
 
         public void IterateLevel()
         {
             _playerData.CurrentLevel += 1;
+            _playerData.CurrentLevel %= levelCount + 1;
+            if (_playerData.CurrentLevel == 0)
+            {
+                _playerData.CurrentLevel = 1;
+            } 
             _playerStatusUI.SetCurrentLevel(_playerData.CurrentLevel);
-            _playerStatusUI.SetNextLevel(_playerData.CurrentLevel + 1);
-            _playerData.Save();
+            _playerStatusUI.SetNextLevel((_playerData.CurrentLevel + 1) % (levelCount + 1));
+            LoadNextLevel();
         }
 
         public void SetStageRatio(int stage,float ratio)

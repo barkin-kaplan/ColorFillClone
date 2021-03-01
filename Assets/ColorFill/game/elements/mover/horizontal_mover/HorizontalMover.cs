@@ -4,6 +4,7 @@ namespace ColorFill.game.elements.mover.horizontal_mover
 {
     public class HorizontalMover : AMover
     {
+        protected Vector3 speed = Vector3.right * 1.8f;
         private float leftX;
         private float rightX;
 
@@ -11,13 +12,13 @@ namespace ColorFill.game.elements.mover.horizontal_mover
         public void SetMoveAmount(float amount)
         {
             leftX = transform.position.x;
-            rightX = leftX - amount;
+            rightX = leftX + amount;
         }
 
         void Update()
         {
             transform.position += speed * Time.deltaTime;
-            if (speed.y < 0)
+            if (speed.x < 0)
             {
                 if (transform.position.x < leftX)
                 {
@@ -26,7 +27,7 @@ namespace ColorFill.game.elements.mover.horizontal_mover
             }
             else
             {
-                if (transform.position.y > rightX)
+                if (transform.position.x > rightX)
                 {
                     speed *= -1;
                 }
