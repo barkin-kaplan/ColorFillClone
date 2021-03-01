@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="11" height="11" tilewidth="200" tileheight="200" infinite="0" nextlayerid="2" nextobjectid="1">
+ <editorsettings>
+  <export target="../json_export/level_3_1.json" format="json"/>
+ </editorsettings>
  <tileset firstgid="1" source="../tileset/ColorFillTileSet.tsx"/>
- <layer id="1" name="e" width="11" height="11">
+ <layer id="1" name="Tile Layer 1" width="11" height="11">
   <properties>
-   <property name="vertical_move_amount" value="3"/>
+   <property name="horizontal_move_amount" value="2"/>
+   <property name="vertical_move_amount" value="2"/>
   </properties>
   <data encoding="csv">
-0,0,2,2,2,2,2,2,2,0,0,
-0,0,2,2,2,2,2,2,2,0,0,
-0,0,2,2,2,2,2,2,2,0,0,
-0,0,2,2,2,2,2,2,2,0,0,
-0,0,2,2,2,2,2,2,2,0,0,
-4,0,0,0,0,0,0,0,0,0,4,
-4,0,0,0,0,0,0,0,0,0,4,
+4,4,4,0,0,2,0,0,4,4,4,
+4,4,4,0,0,2,0,0,4,4,4,
+0,0,0,0,0,2,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,
+3,3,3,0,0,0,0,3,3,0,0,
+0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,

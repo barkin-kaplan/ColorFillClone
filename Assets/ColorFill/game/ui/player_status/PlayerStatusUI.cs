@@ -24,7 +24,8 @@ namespace ColorFill.game.ui.player_status
         
         public void SetNextLevel(int level)
         {
-            _nextLevelText.text = Util.ToString(level);
+            var text = level == 0 ? "End" : Util.ToString(level);
+            _nextLevelText.text = text;
         }
 
         public void SetGemCount(int count)

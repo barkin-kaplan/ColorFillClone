@@ -40,6 +40,7 @@ namespace ColorFill.game.elements
         private const float turnThreshold = 0.07f;
         private bool IsProceedingToNextStage;
         private bool isInsideFullFill;
+        private GameObjectType _lastMatrixObjectType;
         public static Player Instance { get; private set; }
         
 
@@ -198,7 +199,10 @@ namespace ColorFill.game.elements
             }
             else if (otherObj.CompareTag("Deadly") )
             {
-                GameOver();
+                if (_lastMatrixObjectType != GameObjectType.FullFill)
+                {
+                    GameOver();    
+                }
             }
             else if (otherObj.CompareTag("Gem"))
             {
@@ -228,8 +232,8 @@ namespace ColorFill.game.elements
 
         void PlayerAt(PlayerStatus status)
         {
-            var matrixObjType = _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,status);
-            isInsideFullFill = matrixObjType == GameObjectType.FullFill;
+            _lastMatrixObjectType = _level.PlayerAt((int)_lastCell.x,(int)_lastCell.y,status);
+            isInsideFullFill = _lastMatrixObjectType == GameObjectType.FullFill;
         }
 
         void ResetVelocity()
@@ -240,6 +244,7 @@ namespace ColorFill.game.elements
 
         public void InitializeData()
         {
+            ResetVelocity();
             SetLastCell();
         }
 
